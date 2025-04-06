@@ -1,0 +1,247 @@
+{
+  "info": {
+    "_postman_id": "9dfd5b9e-8f17-4d2b-a7d3-1e5c6423bef5",
+    "name": "Lesson API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Lessons",
+      "item": [
+        {
+          "name": "Get All Lessons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons"]
+            },
+            "description": "모든 레슨을 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Lesson by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/{{lessonId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "{{lessonId}}"]
+            },
+            "description": "ID로 특정 레슨을 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Lessons by Challenge ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/challenge/{{challengeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "challenge", "{{challengeId}}"]
+            },
+            "description": "챌린지 ID로 레슨을 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Lessons by Section Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/type/TEXT",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "type", "TEXT"]
+            },
+            "description": "섹션 유형으로 레슨을 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Lessons by Challenge ID and Section Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/challenge/{{challengeId}}/type/IMPLEMENTATION",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "challenge", "{{challengeId}}", "type", "IMPLEMENTATION"]
+            },
+            "description": "챌린지 ID와 섹션 유형으로 레슨을 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Lesson",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"challengeId\": \"{{challengeId}}\",\n    \"sections\": [\n        {\n            \"title\": \"Introduction\",\n            \"type\": \"TEXT\",\n            \"data\": \"This is an introduction to the lesson.\"\n        },\n        {\n            \"title\": \"Knowledge Check\",\n            \"type\": \"GAP_FILL\",\n            \"data\": {\n                \"question\": \"What is the correct answer?\",\n                \"displayTokens\": [\n                    { \"text\": \"The correct answer is \", \"isBlank\": false },\n                    { \"text\": \"B\", \"isBlank\": true },\n                    { \"text\": \".\", \"isBlank\": false }\n                ],\n                \"choices\": [\n                    { \"text\": \"A\", \"isCorrect\": false },\n                    { \"text\": \"B\", \"isCorrect\": true },\n                    { \"text\": \"C\", \"isCorrect\": false },\n                    { \"text\": \"D\", \"isCorrect\": false }\n                ],\n                \"correctOptionIndex\": 1\n            }\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons"]
+            },
+            "description": "새로운 레슨을 생성합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Binary Search Sample Lesson",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/sample/binary-search/{{challengeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "sample", "binary-search", "{{challengeId}}"]
+            },
+            "description": "이진 검색 샘플 레슨을 생성합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tree Traversal Sample Lesson",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/sample/tree-traversal/{{challengeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "sample", "tree-traversal", "{{challengeId}}"]
+            },
+            "description": "트리 순회 샘플 레슨을 생성합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Lesson",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"challengeId\": \"{{challengeId}}\",\n    \"sections\": [\n        {\n            \"title\": \"Updated Introduction\",\n            \"type\": \"TEXT\",\n            \"data\": \"This is an updated introduction to the lesson.\"\n        },\n        {\n            \"title\": \"Updated Knowledge Check\",\n            \"type\": \"GAP_FILL\",\n            \"data\": {\n                \"question\": \"What is the correct answer now?\",\n                \"displayTokens\": [\n                    { \"text\": \"The correct answer is now \", \"isBlank\": false },\n                    { \"text\": \"C\", \"isBlank\": true },\n                    { \"text\": \".\", \"isBlank\": false }\n                ],\n                \"choices\": [\n                    { \"text\": \"A\", \"isCorrect\": false },\n                    { \"text\": \"B\", \"isCorrect\": false },\n                    { \"text\": \"C\", \"isCorrect\": true },\n                    { \"text\": \"D\", \"isCorrect\": false }\n                ],\n                \"correctOptionIndex\": 2\n            }\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/{{lessonId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "{{lessonId}}"]
+            },
+            "description": "기존 레슨을 수정합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Lesson Sections",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n    {\n        \"title\": \"New Introduction\",\n        \"type\": \"TEXT\",\n        \"data\": \"This is a new introduction to the lesson.\"\n    },\n    {\n        \"title\": \"New Implementation Exercise\",\n        \"type\": \"IMPLEMENTATION\",\n        \"data\": {\n            \"title\": \"Simple Function Implementation\",\n            \"description\": \"Implement a simple function that adds two numbers.\",\n            \"codeSteps\": [\n                {\n                    \"order\": 1,\n                    \"code\": \"function add(a, b) {\",\n                    \"explanation\": \"Define the function with two parameters\"\n                },\n                {\n                    \"order\": 2,\n                    \"code\": \"  return a + b;\",\n                    \"explanation\": \"Return the sum of the two parameters\"\n                },\n                {\n                    \"order\": 3,\n                    \"code\": \"}\",\n                    \"explanation\": \"End the function\"\n                }\n            ]\n        }\n    }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/{{lessonId}}/sections",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "{{lessonId}}", "sections"]
+            },
+            "description": "레슨의 섹션만 수정합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Lesson",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/{{lessonId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "{{lessonId}}"]
+            },
+            "description": "특정 레슨을 삭제합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Lessons by Challenge ID",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/lessons/challenge/{{challengeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "lessons", "challenge", "{{challengeId}}"]
+            },
+            "description": "특정 챌린지에 속한 모든 레슨을 삭제합니다."
+          },
+          "response": []
+        }
+      ],
+      "description": "레슨 관리를 위한 API 엔드포인트들"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "challengeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lessonId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
