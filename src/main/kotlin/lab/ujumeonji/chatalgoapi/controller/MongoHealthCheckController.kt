@@ -11,19 +11,19 @@ import java.util.*
 @RestController
 @RequestMapping("/api/health")
 class MongoHealthCheckController(private val mongoTemplate: MongoTemplate) {
-    
+
     @GetMapping("/mongo")
     fun checkMongoHealth(): ResponseEntity<Map<String, Any>> {
         return try {
             // MongoDB 핑 테스트
             val pingResult = mongoTemplate.db.runCommand(Document("ping", 1))
-            
+
             // MongoDB 서버 정보 가져오기
             val buildInfo = mongoTemplate.db.runCommand(Document("buildInfo", 1))
-            
+
             // 컬렉션 목록 가져오기
             val collections = mongoTemplate.collectionNames
-            
+
             val response = mapOf(
                 "status" to "UP",
                 "timestamp" to Date(),
@@ -33,7 +33,7 @@ class MongoHealthCheckController(private val mongoTemplate: MongoTemplate) {
                     "ping" to pingResult["ok"]
                 )
             )
-            
+
             ResponseEntity.ok(response)
         } catch (e: Exception) {
             val response = mapOf(
@@ -41,7 +41,7 @@ class MongoHealthCheckController(private val mongoTemplate: MongoTemplate) {
                 "timestamp" to Date(),
                 "error" to (e.message ?: "Unknown error")
             )
-            
+
             ResponseEntity.status(503).body(response)
         }
     }

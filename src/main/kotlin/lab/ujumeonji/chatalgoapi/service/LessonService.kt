@@ -12,37 +12,37 @@ class LessonService(
     private val lessonRepository: LessonRepository,
     private val challengeRepository: ChallengeRepository
 ) {
-    
+
     private val logger = LoggerFactory.getLogger(LessonService::class.java)
-    
+
     /**
      * 모든 레슨을 조회합니다.
      */
     fun findAll(): List<Lesson> = lessonRepository.findAll()
-    
+
     /**
      * ID로 특정 레슨을 조회합니다.
      */
     fun findById(id: String): Lesson? = lessonRepository.findById(id).orElse(null)
-    
+
     /**
      * 챌린지 ID로 레슨을 조회합니다.
      */
-    fun findByChallengeId(challengeId: String): List<Lesson> = 
+    fun findByChallengeId(challengeId: String): List<Lesson> =
         lessonRepository.findByChallengeId(challengeId)
-    
+
     /**
      * 섹션 유형으로 레슨을 조회합니다.
      */
-    fun findBySectionType(type: SectionType): List<Lesson> = 
+    fun findBySectionType(type: SectionType): List<Lesson> =
         lessonRepository.findBySectionsType(type)
-    
+
     /**
      * 챌린지 ID와 섹션 유형으로 레슨을 조회합니다.
      */
     fun findByChallengeIdAndSectionType(challengeId: String, type: SectionType): List<Lesson> =
         lessonRepository.findByChallengeIdAndSectionsType(challengeId, type)
-    
+
     /**
      * 레슨을 저장합니다.
      */
@@ -52,17 +52,17 @@ class LessonService(
         if (challenge.isEmpty) {
             throw IllegalArgumentException("Challenge with ID ${lesson.challengeId} does not exist")
         }
-        
+
         logger.info("레슨 저장 중: 챌린지 ID = {}", lesson.challengeId)
         return lessonRepository.save(lesson)
     }
-    
+
     /**
      * 기존 레슨을 업데이트합니다.
      */
     fun update(id: String, updatedLesson: Lesson): Lesson? {
         val existingLesson = lessonRepository.findById(id).orElse(null)
-        
+
         return if (existingLesson != null) {
             // 챌린지 ID는 변경할 수 없음 (관계 무결성 유지)
             val lesson = updatedLesson.copy(
@@ -76,13 +76,13 @@ class LessonService(
             null
         }
     }
-    
+
     /**
      * 레슨의 섹션을 업데이트합니다.
      */
     fun updateSections(id: String, sections: List<LessonSection>): Lesson? {
         val lesson = lessonRepository.findById(id).orElse(null)
-        
+
         return if (lesson != null) {
             val updatedLesson = lesson.copy(
                 sections = sections,
@@ -93,14 +93,14 @@ class LessonService(
             null
         }
     }
-    
+
     /**
      * 레슨을 ID로 삭제합니다.
      */
     fun deleteById(id: String) {
         lessonRepository.deleteById(id)
     }
-    
+
     /**
      * 챌린지 ID로 관련된 모든 레슨을 삭제합니다.
      */
@@ -108,7 +108,7 @@ class LessonService(
         val lessons = lessonRepository.findByChallengeId(challengeId)
         lessonRepository.deleteAll(lessons)
     }
-    
+
     /**
      * 이진 검색에 대한 샘플 레슨을 생성합니다.
      */
@@ -118,7 +118,7 @@ class LessonService(
         if (challenge.isEmpty) {
             throw IllegalArgumentException("Challenge with ID $challengeId does not exist")
         }
-        
+
         val binarySearchLesson = Lesson(
             challengeId = challengeId,
             sections = listOf(
@@ -130,7 +130,7 @@ class LessonService(
                         Binary search is an efficient algorithm for finding an item from a sorted list of items. It works by repeatedly dividing in half the portion of the list that could contain the item, until you've narrowed down the possible locations to just one.
                     """.trimIndent()
                 ),
-                
+
                 // 이진 검색 지식 체크 (GAP_FILL) 섹션
                 LessonSection(
                     title = "Binary Search Knowledge Check",
@@ -151,7 +151,7 @@ class LessonService(
                         correctOptionIndex = 1
                     )
                 ),
-                
+
                 // 이진 검색 구현 섹션
                 LessonSection(
                     title = "Binary Search Implementation",
@@ -245,11 +245,11 @@ class LessonService(
                 )
             )
         )
-        
+
         logger.info("이진 검색 레슨 생성 중: 챌린지 ID = {}", challengeId)
         return lessonRepository.save(binarySearchLesson)
     }
-    
+
     /**
      * 트리 순회에 대한 샘플 레슨을 생성합니다.
      */
@@ -259,7 +259,7 @@ class LessonService(
         if (challenge.isEmpty) {
             throw IllegalArgumentException("Challenge with ID $challengeId does not exist")
         }
-        
+
         val treeTraversalLesson = Lesson(
             challengeId = challengeId,
             sections = listOf(
@@ -275,7 +275,7 @@ class LessonService(
                         - Post-order traversal: Visit left subtree, then right subtree, then root.
                     """.trimIndent()
                 ),
-                
+
                 // 트리 순회 구현 섹션
                 LessonSection(
                     title = "Tree Traversal Implementation",
@@ -342,7 +342,7 @@ class LessonService(
                         )
                     )
                 ),
-                
+
                 // 트리 순회 지식 체크 섹션
                 LessonSection(
                     title = "Tree Traversal Knowledge Check",
@@ -365,7 +365,7 @@ class LessonService(
                 )
             )
         )
-        
+
         logger.info("트리 순회 레슨 생성 중: 챌린지 ID = {}", challengeId)
         return lessonRepository.save(treeTraversalLesson)
     }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/lessons")
 class LessonController(private val lessonService: LessonService) {
-    
+
     /**
      * 모든 레슨을 조회합니다.
      */
@@ -19,7 +19,7 @@ class LessonController(private val lessonService: LessonService) {
     fun getAllLessons(): ResponseEntity<List<Lesson>> {
         return ResponseEntity.ok(lessonService.findAll())
     }
-    
+
     /**
      * ID로 특정 레슨을 조회합니다.
      */
@@ -32,7 +32,7 @@ class LessonController(private val lessonService: LessonService) {
             ResponseEntity.notFound().build()
         }
     }
-    
+
     /**
      * 챌린지 ID로 레슨을 조회합니다.
      */
@@ -40,7 +40,7 @@ class LessonController(private val lessonService: LessonService) {
     fun getLessonsByChallengeId(@PathVariable challengeId: String): ResponseEntity<List<Lesson>> {
         return ResponseEntity.ok(lessonService.findByChallengeId(challengeId))
     }
-    
+
     /**
      * 섹션 유형으로 레슨을 조회합니다.
      */
@@ -53,7 +53,7 @@ class LessonController(private val lessonService: LessonService) {
             return ResponseEntity.badRequest().build()
         }
     }
-    
+
     /**
      * 챌린지 ID와 섹션 유형으로 레슨을 조회합니다.
      */
@@ -69,7 +69,7 @@ class LessonController(private val lessonService: LessonService) {
             return ResponseEntity.badRequest().build()
         }
     }
-    
+
     /**
      * 새로운 레슨을 생성합니다.
      */
@@ -81,7 +81,7 @@ class LessonController(private val lessonService: LessonService) {
             ResponseEntity.badRequest().build()
         }
     }
-    
+
     /**
      * 이진 검색 샘플 레슨을 생성합니다.
      */
@@ -93,7 +93,7 @@ class LessonController(private val lessonService: LessonService) {
             ResponseEntity.badRequest().build()
         }
     }
-    
+
     /**
      * 트리 순회 샘플 레슨을 생성합니다.
      */
@@ -105,7 +105,7 @@ class LessonController(private val lessonService: LessonService) {
             ResponseEntity.badRequest().build()
         }
     }
-    
+
     /**
      * 기존 레슨을 수정합니다.
      */
@@ -121,7 +121,7 @@ class LessonController(private val lessonService: LessonService) {
             ResponseEntity.notFound().build()
         }
     }
-    
+
     /**
      * 레슨의 섹션을 업데이트합니다.
      */
@@ -137,7 +137,7 @@ class LessonController(private val lessonService: LessonService) {
             ResponseEntity.notFound().build()
         }
     }
-    
+
     /**
      * 특정 레슨을 삭제합니다.
      */
@@ -146,7 +146,7 @@ class LessonController(private val lessonService: LessonService) {
         lessonService.deleteById(id)
         return ResponseEntity.noContent().build()
     }
-    
+
     /**
      * 챌린지에 속한 모든 레슨을 삭제합니다.
      */

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/challenges")
 class ChallengeController(private val challengeService: ChallengeService) {
-    
+
     /**
      * 모든 챌린지를 조회합니다.
      */
@@ -17,7 +17,7 @@ class ChallengeController(private val challengeService: ChallengeService) {
     fun getAllChallenges(): ResponseEntity<List<Challenge>> {
         return ResponseEntity.ok(challengeService.findAll())
     }
-    
+
     /**
      * ID로 특정 챌린지를 조회합니다.
      */
@@ -30,7 +30,7 @@ class ChallengeController(private val challengeService: ChallengeService) {
             ResponseEntity.notFound().build()
         }
     }
-    
+
     /**
      * 제목으로 특정 챌린지를 조회합니다.
      */
@@ -43,7 +43,7 @@ class ChallengeController(private val challengeService: ChallengeService) {
             ResponseEntity.notFound().build()
         }
     }
-    
+
     /**
      * 난이도별로 챌린지를 조회합니다.
      */
@@ -51,7 +51,7 @@ class ChallengeController(private val challengeService: ChallengeService) {
     fun getChallengesByDifficulty(@PathVariable difficulty: String): ResponseEntity<List<Challenge>> {
         return ResponseEntity.ok(challengeService.findByDifficulty(difficulty))
     }
-    
+
     /**
      * 태그별로 챌린지를 조회합니다.
      */
@@ -59,7 +59,7 @@ class ChallengeController(private val challengeService: ChallengeService) {
     fun getChallengesByTag(@PathVariable tag: String): ResponseEntity<List<Challenge>> {
         return ResponseEntity.ok(challengeService.findByTag(tag))
     }
-    
+
     /**
      * 새로운 챌린지를 생성합니다.
      */
@@ -67,7 +67,7 @@ class ChallengeController(private val challengeService: ChallengeService) {
     fun createChallenge(@RequestBody challenge: Challenge): ResponseEntity<Challenge> {
         return ResponseEntity.status(HttpStatus.CREATED).body(challengeService.save(challenge))
     }
-    
+
     /**
      * 기존 챌린지를 수정합니다.
      */
@@ -83,7 +83,7 @@ class ChallengeController(private val challengeService: ChallengeService) {
             ResponseEntity.notFound().build()
         }
     }
-    
+
     /**
      * 특정 챌린지를 삭제합니다.
      */
