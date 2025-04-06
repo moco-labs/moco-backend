@@ -6,7 +6,6 @@ RUN gradle build -x test --no-daemon
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
-COPY --from=build /app/.env .env
 
 # Create directory for configuration
 RUN mkdir -p /app/config
@@ -15,4 +14,4 @@ RUN mkdir -p /app/config
 RUN mkdir -p /var/log/chatalgo-api
 
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.config.location=optional:file:/app/config/"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
