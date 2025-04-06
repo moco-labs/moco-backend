@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: chatalgo-api
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}/?retryWrites=true&w=majority&appName=chatalgo}
+      database: ${MONGODB_DATABASE:chatalgo}
+
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
