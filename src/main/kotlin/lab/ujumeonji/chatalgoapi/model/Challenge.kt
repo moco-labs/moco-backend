@@ -10,6 +10,7 @@ data class Challenge(
     val id: String? = null,
     val title: String,
     val description: String,
+    val descriptionHighlightTokens: List<HighlightToken>,
     val instructions: String,
     val difficulty: String,
     val tags: List<String>,
@@ -24,4 +25,9 @@ data class ChallengeExample(
     val input: String,
     val output: String,
     val explanation: String,
+)
+
+data class HighlightToken(
+    val token: String,
+    val isHighlighted: Boolean,
 )

@@ -30,7 +30,6 @@ data class Quiz(
     val question: String,
     val displayTokens: List<Token>,
     val choices: List<QuizOption>,
-    val explanation: String? = null,
     val correctOptionIndex: Int
 )
 
