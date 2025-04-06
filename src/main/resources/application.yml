@@ -3,8 +3,9 @@ spring:
     name: chatalgo-api
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@chatalgo.e3jtoia.mongodb.net/?retryWrites=true&w=majority&appName=chatalgo}
-      database: ${MONGODB_DATABASE:chatalgo}
+      uri: mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_URI}/
+      database: ${MONGODB_DATABASE}
+      auto-index-creation: true
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
