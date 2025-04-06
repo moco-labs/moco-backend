@@ -1,0 +1,249 @@
+{
+  "info": {
+    "_postman_id": "8dfd5b9e-8f17-4d2b-a7d3-1e5c6423bef5",
+    "name": "Chatalgo API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Challenges",
+      "item": [
+        {
+          "name": "Get All Challenges",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges"]
+            },
+            "description": "모든 챌린지를 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Challenge by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/{{challengeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "{{challengeId}}"]
+            },
+            "description": "ID로 특정 챌린지를 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Challenge by Title",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/title/Binary Search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "title", "Binary Search"]
+            },
+            "description": "제목으로 특정 챌린지를 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Challenges by Difficulty",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/difficulty/Medium",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "difficulty", "Medium"]
+            },
+            "description": "난이도별로 챌린지를 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Challenges by Tag",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/tag/Trees",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "tag", "Trees"]
+            },
+            "description": "태그별로 챌린지를 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Challenges by Completion Rate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/completion-rate?min=50&max=80",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "completion-rate"],
+              "query": [
+                {
+                  "key": "min",
+                  "value": "50"
+                },
+                {
+                  "key": "max",
+                  "value": "80"
+                }
+              ]
+            },
+            "description": "완료율 범위로 챌린지를 가져옵니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Challenge",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Quick Sort Implementation\",\n    \"description\": \"Learn and implement the quick sort algorithm, a highly efficient sorting algorithm based on the divide-and-conquer strategy.\",\n    \"difficulty\": \"Medium\",\n    \"tags\": [\"Sorting\", \"Algorithm\", \"Divide and Conquer\", \"Array\"],\n    \"completionRate\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges"]
+            },
+            "description": "새로운 챌린지를 생성합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Tree Traversal Sample Challenge",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/sample/tree-traversal",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "sample", "tree-traversal"]
+            },
+            "description": "트리 순회 샘플 챌린지를 생성합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Binary Search Sample Challenge",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/sample/binary-search",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "sample", "binary-search"]
+            },
+            "description": "이진 검색 샘플 챌린지를 생성합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Challenge",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"Updated Challenge Title\",\n    \"description\": \"Updated challenge description\",\n    \"difficulty\": \"Hard\",\n    \"tags\": [\"Updated\", \"Tags\"],\n    \"completionRate\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/{{challengeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "{{challengeId}}"]
+            },
+            "description": "특정 챌린지를 수정합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Completion Rate",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/{{challengeId}}/completion-rate?completionRate=75",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "{{challengeId}}", "completion-rate"],
+              "query": [
+                {
+                  "key": "completionRate",
+                  "value": "75"
+                }
+              ]
+            },
+            "description": "챌린지의 완료율을 업데이트합니다."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Challenge",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/challenges/{{challengeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "challenges", "{{challengeId}}"]
+            },
+            "description": "특정 챌린지를 삭제합니다."
+          },
+          "response": []
+        }
+      ],
+      "description": "챌린지 관리를 위한 API 엔드포인트들"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "challengeId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
