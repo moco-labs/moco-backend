@@ -62,7 +62,8 @@ ingress:
   className: nginx
   annotations:
     kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
     - host: quibe-api.otter.coffee
       paths:
