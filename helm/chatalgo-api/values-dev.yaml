@@ -1,0 +1,84 @@
+# Development environment values for chatalgo-api
+# This file contains non-sensitive values for development environments
+
+replicaCount: 1
+
+image:
+  repository: chatalgo-api
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  hosts:
+    - host: chatalgo-api.dev.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 768Mi
+  requests:
+    cpu: 200m
+    memory: 384Mi
+
+autoscaling:
+  enabled: false
+
+application:
+  name: chatalgo-api
+  mongodb:
+    database: chatalgo
+
+# Environment variables
+env:
+  extra:
+    - name: SPRING_PROFILES_ACTIVE
+      value: "dev"
+    - name: JAVA_OPTS
+      value: "-Xmx512m -Xms256m"
+
+# Liveness and readiness probe settings for development
+livenessProbe:
+  initialDelaySeconds: 90
+  periodSeconds: 20
+
+readinessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 20
+
+# Configure ConfigMap
+configMap:
+  data:
+    application-dev.yml: |-
+      spring:
+        data:
+          mongodb:
+            database: ${MONGODB_DATABASE}
+        ai:
+          openai:
+            timeout: 60
+        
+      logging:
+        level:
+          org.springframework.data.mongodb: DEBUG
+          lab.ujumeonji.chatalgoapi: DEBUG
+      
+      # Development specific settings
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: "*"
+        endpoint:
+          health:
+            show-details: always
