@@ -4,7 +4,7 @@ set -e
 # Default values
 NAMESPACE=${NAMESPACE:-"default"}
 RELEASE_NAME=${RELEASE_NAME:-"chatalgo-api"}
-CHART_DIR="./deploy"
+CHART_DIR="./helm"
 VALUES_FILE=""
 DOCKER_REGISTRY=${DOCKER_REGISTRY:-"webdev0594"}
 IMAGE_TAG=${IMAGE_TAG:-$(git rev-parse --short HEAD)}
@@ -60,7 +60,7 @@ helm package $CHART_DIR --destination ./helm/packages
 
 # Deploy with Helm
 echo "Deploying to Kubernetes..."
-HELM_CMD="helm upgrade --install $RELEASE_NAME ./deploy --namespace $NAMESPACE --set image.repository=${DOCKER_REGISTRY}/${RELEASE_NAME} --set image.tag=${IMAGE_TAG}"
+HELM_CMD="helm upgrade --install $RELEASE_NAME ./helm --namespace $NAMESPACE --set image.repository=${DOCKER_REGISTRY}/${RELEASE_NAME} --set image.tag=${IMAGE_TAG}"
 
 if [ -n "$VALUES_FILE" ]; then
   HELM_CMD="$HELM_CMD --values $VALUES_FILE"
