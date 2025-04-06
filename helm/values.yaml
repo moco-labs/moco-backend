@@ -54,7 +54,7 @@ service:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 80
+  port: 8080
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
@@ -65,14 +65,14 @@ ingress:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
-    - host: quibe-api.otter.coffee
+    - host: api-quibe.otter.coffee
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
-    - secretName: quibe-api-tls
+    - secretName: api-quibe-tls
       hosts:
-        - quibe-api.otter.coffee
+        - api-quibe.otter.coffee
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
