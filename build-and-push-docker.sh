@@ -52,7 +52,7 @@ done
 
 # Build and push Docker image
 echo "Building Docker image..."
-docker buildx build -t ${DOCKER_REGISTRY}/chatalgo-api:${IMAGE_TAG} -f Dockerfile --platform linux/amd64,linux/arm64 --push .
+docker buildx build -t ${DOCKER_REGISTRY}/${RELEASE_NAME}:${IMAGE_TAG} -f Dockerfile --platform linux/amd64,linux/arm64 --push .
 
 # Package Helm chart
 echo "Packaging Helm chart..."
@@ -60,7 +60,7 @@ helm package $CHART_DIR --destination ./helm/packages
 
 # Deploy with Helm
 echo "Deploying to Kubernetes..."
-HELM_CMD="helm upgrade --install $RELEASE_NAME ./deploy --namespace $NAMESPACE --set image.repository=${DOCKER_REGISTRY}/chatalgo --set image.tag=${IMAGE_TAG}"
+HELM_CMD="helm upgrade --install $RELEASE_NAME ./deploy --namespace $NAMESPACE --set image.repository=${DOCKER_REGISTRY}/${RELEASE_NAME} --set image.tag=${IMAGE_TAG}"
 
 if [ -n "$VALUES_FILE" ]; then
   HELM_CMD="$HELM_CMD --values $VALUES_FILE"
