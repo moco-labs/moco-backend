@@ -34,7 +34,20 @@ class LessonController(private val lessonService: LessonService) {
     }
 
     /**
-     * 챌린지 ID로 레슨을 조회합니다.
+     * 챌린지 ID로 단일 레슨을 조회합니다.
+     */
+    @GetMapping("/challenge/{challengeId}/lesson")
+    fun getSingleLessonByChallengeId(@PathVariable challengeId: String): ResponseEntity<Lesson> {
+        val lesson = lessonService.findOneByChallengeId(challengeId)
+        return if (lesson != null) {
+            ResponseEntity.ok(lesson)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    /**
+     * 챌린지 ID로 레슨 목록을 조회합니다.
      */
     @GetMapping("/challenge/{challengeId}")
     fun getLessonsByChallengeId(@PathVariable challengeId: String): ResponseEntity<List<Lesson>> {

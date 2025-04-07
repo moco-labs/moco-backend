@@ -32,6 +32,16 @@ class LessonService(
         lessonRepository.findByChallengeId(challengeId)
 
     /**
+     * 챌린지 ID로 단일 레슨을 조회합니다.
+     * 여러 레슨이 발견될 경우 첫 번째 레슨을 반환합니다.
+     */
+    fun findOneByChallengeId(challengeId: String): Lesson? {
+        val lessons = lessonRepository.findByChallengeId(challengeId)
+        // Consider logging a warning if lessons.size > 1
+        return lessons.firstOrNull()
+    }
+
+    /**
      * 섹션 유형으로 레슨을 조회합니다.
      */
     fun findBySectionType(type: SectionType): List<Lesson> =
