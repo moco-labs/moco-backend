@@ -16,7 +16,36 @@ class LessonController(private val lessonService: LessonService) {
      * 모든 레슨을 조회합니다.
      */
     @GetMapping
-    fun getAllLessons(): ResponseEntity<List<Lesson>> {
+    fun getLessons(
+        @RequestParam(required = false) challengeId: String?,
+        @RequestParam(required = false) sectionType: String?
+    ): ResponseEntity<List<Lesson>> {
+        // 챌린지 ID와 섹션 타입 모두 제공된 경우
+        if (challengeId != null && sectionType != null) {
+            try {
+                val type = SectionType.valueOf(sectionType.uppercase())
+                return ResponseEntity.ok(lessonService.findByChallengeIdAndSectionType(challengeId, type))
+            } catch (e: IllegalArgumentException) {
+                return ResponseEntity.badRequest().build()
+            }
+        }
+        
+        // 챌린지 ID만 제공된 경우
+        if (challengeId != null) {
+            return ResponseEntity.ok(lessonService.findByChallengeId(challengeId))
+        }
+        
+        // 섹션 타입만 제공된 경우
+        if (sectionType != null) {
+            try {
+                val type = SectionType.valueOf(sectionType.uppercase())
+                return ResponseEntity.ok(lessonService.findBySectionType(type))
+            } catch (e: IllegalArgumentException) {
+                return ResponseEntity.badRequest().build()
+            }
+        }
+        
+        // 파라미터가 없는 경우 모든 레슨 반환
         return ResponseEntity.ok(lessonService.findAll())
     }
 
@@ -24,62 +53,12 @@ class LessonController(private val lessonService: LessonService) {
      * ID로 특정 레슨을 조회합니다.
      */
     @GetMapping("/{id}")
-    fun getLessonById(@PathVariable id: String): ResponseEntity<Lesson> {
+    fun getLesson(@PathVariable id: String): ResponseEntity<Lesson> {
         val lesson = lessonService.findById(id)
         return if (lesson != null) {
             ResponseEntity.ok(lesson)
         } else {
             ResponseEntity.notFound().build()
-        }
-    }
-
-    /**
-     * 챌린지 ID로 단일 레슨을 조회합니다.
-     */
-    @GetMapping("/challenge/{challengeId}/lesson")
-    fun getSingleLessonByChallengeId(@PathVariable challengeId: String): ResponseEntity<Lesson> {
-        val lesson = lessonService.findOneByChallengeId(challengeId)
-        return if (lesson != null) {
-            ResponseEntity.ok(lesson)
-        } else {
-            ResponseEntity.notFound().build()
-        }
-    }
-
-    /**
-     * 챌린지 ID로 레슨 목록을 조회합니다.
-     */
-    @GetMapping("/challenge/{challengeId}")
-    fun getLessonsByChallengeId(@PathVariable challengeId: String): ResponseEntity<List<Lesson>> {
-        return ResponseEntity.ok(lessonService.findByChallengeId(challengeId))
-    }
-
-    /**
-     * 섹션 유형으로 레슨을 조회합니다.
-     */
-    @GetMapping("/type/{type}")
-    fun getLessonsBySectionType(@PathVariable type: String): ResponseEntity<List<Lesson>> {
-        try {
-            val sectionType = SectionType.valueOf(type.uppercase())
-            return ResponseEntity.ok(lessonService.findBySectionType(sectionType))
-        } catch (e: IllegalArgumentException) {
-            return ResponseEntity.badRequest().build()
-        }
-    }
-
-    /**
-     * 챌린지 ID와 섹션 유형으로 레슨을 조회합니다.
-     */
-    @GetMapping("/challenge/{challengeId}/type/{type}")
-    fun getLessonsByChallengeIdAndSectionType(
-        @PathVariable challengeId: String,
-        @PathVariable type: String
-    ): ResponseEntity<List<Lesson>> {
-        try {
-            val sectionType = SectionType.valueOf(type.uppercase())
-            return ResponseEntity.ok(lessonService.findByChallengeIdAndSectionType(challengeId, sectionType))
-        } catch (e: IllegalArgumentException) {
-            return ResponseEntity.badRequest().build()
         }
     }
 
@@ -96,24 +75,20 @@ class LessonController(private val lessonService: LessonService) {
     }
 
     /**
-     * 이진 검색 샘플 레슨을 생성합니다.
+     * 템플릿 기반 레슨을 생성합니다.
      */
-    @PostMapping("/sample/binary-search/{challengeId}")
-    fun createBinarySearchLesson(@PathVariable challengeId: String): ResponseEntity<Lesson> {
+    @PostMapping("/templates")
+    fun createLessonFromTemplate(
+        @RequestParam templateType: String,
+        @RequestParam challengeId: String
+    ): ResponseEntity<Lesson> {
         return try {
-            ResponseEntity.status(HttpStatus.CREATED).body(lessonService.createBinarySearchLesson(challengeId))
-        } catch (e: IllegalArgumentException) {
-            ResponseEntity.badRequest().build()
-        }
-    }
-
-    /**
-     * 트리 순회 샘플 레슨을 생성합니다.
-     */
-    @PostMapping("/sample/tree-traversal/{challengeId}")
-    fun createTreeTraversalLesson(@PathVariable challengeId: String): ResponseEntity<Lesson> {
-        return try {
-            ResponseEntity.status(HttpStatus.CREATED).body(lessonService.createTreeTraversalLesson(challengeId))
+            val lesson = when (templateType.lowercase()) {
+                "binary-search" -> lessonService.createBinarySearchLesson(challengeId)
+                "tree-traversal" -> lessonService.createTreeTraversalLesson(challengeId)
+                else -> return ResponseEntity.badRequest().build()
+            }
+            ResponseEntity.status(HttpStatus.CREATED).body(lesson)
         } catch (e: IllegalArgumentException) {
             ResponseEntity.badRequest().build()
         }
@@ -157,15 +132,6 @@ class LessonController(private val lessonService: LessonService) {
     @DeleteMapping("/{id}")
     fun deleteLesson(@PathVariable id: String): ResponseEntity<Void> {
         lessonService.deleteById(id)
-        return ResponseEntity.noContent().build()
-    }
-
-    /**
-     * 챌린지에 속한 모든 레슨을 삭제합니다.
-     */
-    @DeleteMapping("/challenge/{challengeId}")
-    fun deleteLessonsByChallengeId(@PathVariable challengeId: String): ResponseEntity<Void> {
-        lessonService.deleteByChallengeId(challengeId)
         return ResponseEntity.noContent().build()
     }
 }

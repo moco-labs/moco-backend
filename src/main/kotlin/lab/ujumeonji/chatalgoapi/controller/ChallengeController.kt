@@ -11,10 +11,40 @@ import org.springframework.web.bind.annotation.*
 class ChallengeController(private val challengeService: ChallengeService) {
 
     /**
-     * 모든 챌린지를 조회합니다.
+     * 필터링 조건에 따른 챌린지 조회합니다.
+     * 
+     * @param title 제목으로 필터링
+     * @param difficulty 난이도로 필터링
+     * @param tag 태그로 필터링
+     * @return 필터링된: 챌린지 목록
      */
     @GetMapping
-    fun getAllChallenges(): ResponseEntity<List<Challenge>> {
+    fun getChallenges(
+        @RequestParam(required = false) title: String?,
+        @RequestParam(required = false) difficulty: String?,
+        @RequestParam(required = false) tag: String?
+    ): ResponseEntity<List<Challenge>> {
+        // 제목으로 필터링
+        if (title != null) {
+            val challenge = challengeService.findByTitle(title)
+            return if (challenge != null) {
+                ResponseEntity.ok(listOf(challenge))
+            } else {
+                ResponseEntity.ok(emptyList())
+            }
+        }
+        
+        // 난이도로 필터링
+        if (difficulty != null) {
+            return ResponseEntity.ok(challengeService.findByDifficulty(difficulty))
+        }
+        
+        // 태그로 필터링
+        if (tag != null) {
+            return ResponseEntity.ok(challengeService.findByTag(tag))
+        }
+        
+        // 필터링 조건이 없으면 모든 챌린지 반환
         return ResponseEntity.ok(challengeService.findAll())
     }
 
@@ -22,42 +52,13 @@ class ChallengeController(private val challengeService: ChallengeService) {
      * ID로 특정 챌린지를 조회합니다.
      */
     @GetMapping("/{id}")
-    fun getChallengeById(@PathVariable id: String): ResponseEntity<Challenge> {
+    fun getChallenge(@PathVariable id: String): ResponseEntity<Challenge> {
         val challenge = challengeService.findById(id)
         return if (challenge != null) {
             ResponseEntity.ok(challenge)
         } else {
             ResponseEntity.notFound().build()
         }
-    }
-
-    /**
-     * 제목으로 특정 챌린지를 조회합니다.
-     */
-    @GetMapping("/title/{title}")
-    fun getChallengeByTitle(@PathVariable title: String): ResponseEntity<Challenge> {
-        val challenge = challengeService.findByTitle(title)
-        return if (challenge != null) {
-            ResponseEntity.ok(challenge)
-        } else {
-            ResponseEntity.notFound().build()
-        }
-    }
-
-    /**
-     * 난이도별로 챌린지를 조회합니다.
-     */
-    @GetMapping("/difficulty/{difficulty}")
-    fun getChallengesByDifficulty(@PathVariable difficulty: String): ResponseEntity<List<Challenge>> {
-        return ResponseEntity.ok(challengeService.findByDifficulty(difficulty))
-    }
-
-    /**
-     * 태그별로 챌린지를 조회합니다.
-     */
-    @GetMapping("/tag/{tag}")
-    fun getChallengesByTag(@PathVariable tag: String): ResponseEntity<List<Challenge>> {
-        return ResponseEntity.ok(challengeService.findByTag(tag))
     }
 
     /**
