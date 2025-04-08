@@ -7,6 +7,7 @@ import lab.ujumeonji.chatalgoapi.repository.DailyChallengeRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import kotlin.random.Random
 
 @Service
 class DailyChallengeService(
@@ -144,6 +145,61 @@ class DailyChallengeService(
             )
             logger.info("새 일일 챌린지 생성: 날짜 = {}", date)
             dailyChallengeRepository.save(newDailyChallenge)
+        }
+    }
+    
+    /**
+     * 사용 가능한 모든 챌린지 중에서 랜덤으로 하나를 선택합니다.
+     * 최근 사용된 일일 챌린지는 제외할 수 있습니다.
+     * 
+     * @param excludeRecentDays 최근 n일 동안 사용된 챌린지를 제외 (기본값: 7일)
+     * @return 선택된 챌린지 또는 사용 가능한 챌린지가 없으면 null
+     */
+    fun selectRandomChallenge(excludeRecentDays: Int = 7): Challenge? {
+        // 모든 챌린지 가져오기
+        val allChallenges = challengeRepository.findAll()
+        if (allChallenges.isEmpty()) {
+            logger.warn("사용 가능한 챌린지가 없습니다.")
+            return null
+        }
+        
+        // 최근 n일 동안 사용된 챌린지 ID 목록 가져오기
+        val today = LocalDate.now()
+        val startDate = today.minusDays(excludeRecentDays.toLong())
+        val recentDailyChallenges = findByDateRange(startDate, today)
+        val recentChallengeIds = recentDailyChallenges.map { it.challengeId }.toSet()
+        
+        // 최근에 사용되지 않은 챌린지 필터링
+        val availableChallenges = allChallenges.filter { challenge -> 
+            challenge.id != null && challenge.id !in recentChallengeIds 
+        }
+        
+        if (availableChallenges.isEmpty()) {
+            logger.warn("최근 {}일 동안 사용되지 않은 챌린지가 없습니다. 모든 챌린지에서 랜덤 선택합니다.", excludeRecentDays)
+            // 모든 챌린지에서 랜덤 선택
+            return allChallenges[Random.nextInt(allChallenges.size)]
+        }
+        
+        // 사용 가능한 챌린지에서 랜덤 선택
+        val randomIndex = Random.nextInt(availableChallenges.size)
+        return availableChallenges[randomIndex]
+    }
+    
+    /**
+     * 랜덤 챌린지를 오늘의 일일 챌린지로 설정합니다.
+     * 
+     * @param excludeRecentDays 최근 n일 동안 사용된 챌린지를 제외 (기본값: 7일)
+     * @return 설정된 일일 챌린지 또는 설정 실패 시 null
+     */
+    fun setRandomDailyChallenge(excludeRecentDays: Int = 7): DailyChallenge? {
+        val randomChallenge = selectRandomChallenge(excludeRecentDays)
+        
+        return if (randomChallenge?.id != null) {
+            val today = LocalDate.now()
+            setDailyChallenge(today, randomChallenge.id)
+        } else {
+            logger.error("랜덤 챌린지를 선택할 수 없습니다.")
+            null
         }
     }
 }

@@ -95,6 +95,21 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
             ResponseEntity.badRequest().build()
         }
     }
+    
+    /**
+     * 랜덤 챌린지를 오늘의 일일 챌린지로 설정합니다.
+     */
+    @PostMapping("/random")
+    fun setRandomDailyChallenge(
+        @RequestParam(required = false, defaultValue = "7") excludeRecentDays: Int
+    ): ResponseEntity<DailyChallenge> {
+        val dailyChallenge = dailyChallengeService.setRandomDailyChallenge(excludeRecentDays)
+        return if (dailyChallenge != null) {
+            ResponseEntity.status(HttpStatus.CREATED).body(dailyChallenge)
+        } else {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
 
     /**
      * 일일 챌린지를 업데이트합니다.
