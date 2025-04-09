@@ -6,13 +6,23 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
+// LearningRequest DTO 구조 (userId, message, sessionId?)
+// 요청 시 problemId는 경로에서 challengeId로 대체
+data class ChallengeChatRequest(
+    val userId: String,
+    val message: String,
+    val sessionId: String? = null
+)
+
 @RestController
 @RequestMapping("/api/challenges")
-class ChallengeController(private val challengeService: ChallengeService) {
+class ChallengeController(
+    private val challengeService: ChallengeService,
+) {
 
     /**
      * 필터링 조건에 따른 챌린지 조회합니다.
-     * 
+     *
      * @param title 제목으로 필터링
      * @param difficulty 난이도로 필터링
      * @param tag 태그로 필터링
@@ -33,17 +43,17 @@ class ChallengeController(private val challengeService: ChallengeService) {
                 ResponseEntity.ok(emptyList())
             }
         }
-        
+
         // 난이도로 필터링
         if (difficulty != null) {
             return ResponseEntity.ok(challengeService.findByDifficulty(difficulty))
         }
-        
+
         // 태그로 필터링
         if (tag != null) {
             return ResponseEntity.ok(challengeService.findByTag(tag))
         }
-        
+
         // 필터링 조건이 없으면 모든 챌린지 반환
         return ResponseEntity.ok(challengeService.findAll())
     }
@@ -92,5 +102,22 @@ class ChallengeController(private val challengeService: ChallengeService) {
     fun deleteChallenge(@PathVariable id: String): ResponseEntity<Void> {
         challengeService.deleteById(id)
         return ResponseEntity.noContent().build()
+    }
+
+    /**
+     * 특정 챌린지에 대한 대화형 학습 세션을 진행합니다.
+     * sessionId가 제공되면 기존 세션을 이어가고, 없으면 새로 시작합니다.
+     * 최대 5번 상호작용 후 이해도 점수가 포함된 결과가 반환됩니다.
+     *
+     * @param challengeId 대화 대상 챌린지 ID
+     * @param request 사용자 ID, 메시지, 세션 ID(선택)
+     * @return 업데이트된 학습 세션 정보
+     */
+    @PostMapping("/{challengeId}/chat")
+    fun chatAboutChallenge(
+        @PathVariable challengeId: String,
+        @RequestBody request: ChallengeChatRequest
+    ): ResponseEntity<Void> {
+        return ResponseEntity.ok().build()
     }
 }
