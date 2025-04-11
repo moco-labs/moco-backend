@@ -12,7 +12,6 @@ import org.springframework.web.servlet.HandlerInterceptor
 class AuthInterceptor(
     private val tokenManager: TokenManager,
     private val authContext: AuthContext,
-    private val roleService: RoleService,
     private val authNotRequiredConditions: MutableSet<UriAndMethodsCondition> = mutableSetOf()
 ) : HandlerInterceptor {
 
@@ -33,11 +32,6 @@ class AuthInterceptor(
         val userId = extractUserFromJwt(request)
         authContext.accountId = userId
         
-        // 인증된 사용자의 역할 정보 로드
-        if (userId != null) {
-            authContext.roles = roleService.getRolesByAccountId(userId)
-        }
-
         return true
     }
 
