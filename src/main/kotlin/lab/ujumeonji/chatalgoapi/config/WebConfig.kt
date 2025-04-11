@@ -34,10 +34,4 @@ class WebConfig(
             .allowCredentials(true)
             .maxAge(3600)
     }
-
-    @Bean
-    fun tokenManager(
-        @Value("\${jwt.secret-key}") secretKey: String,
-        @Value("\${jwt.token-expired}") tokenExpired: Long,
-    ): TokenManager = JwtTokenManager(secretKey, tokenExpired)
 }
