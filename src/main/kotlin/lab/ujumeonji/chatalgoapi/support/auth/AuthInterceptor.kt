@@ -2,7 +2,7 @@ package lab.ujumeonji.chatalgoapi.support.auth
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import lab.ujumeonji.literaturebackend.support.session.TokenManager
+import lab.ujumeonji.chatalgoapi.support.session.TokenManager
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Component
 import org.springframework.web.cors.CorsUtils
