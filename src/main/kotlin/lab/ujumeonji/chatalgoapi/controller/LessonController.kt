@@ -29,12 +29,12 @@ class LessonController(private val lessonService: LessonService) {
                 return ResponseEntity.badRequest().build()
             }
         }
-        
+
         // 챌린지 ID만 제공된 경우
         if (challengeId != null) {
             return ResponseEntity.ok(lessonService.findByChallengeId(challengeId))
         }
-        
+
         // 섹션 타입만 제공된 경우
         if (sectionType != null) {
             try {
@@ -44,7 +44,7 @@ class LessonController(private val lessonService: LessonService) {
                 return ResponseEntity.badRequest().build()
             }
         }
-        
+
         // 파라미터가 없는 경우 모든 레슨 반환
         return ResponseEntity.ok(lessonService.findAll())
     }

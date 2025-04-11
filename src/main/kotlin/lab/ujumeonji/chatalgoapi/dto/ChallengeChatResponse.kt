@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 /**
  * DTO for challenge chat responses.
- * 
+ *
  * @property sessionId Unique identifier for the chat session
  * @property challengeId ID of the challenge being discussed
  * @property userId ID of the user in the conversation
@@ -27,7 +27,7 @@ data class ChallengeChatResponse(
 
 /**
  * Represents a single message in a chat conversation.
- * 
+ *
  * @property content The text content of the message
  * @property sender The sender of the message ("user" or "system")
  * @property timestamp When the message was sent

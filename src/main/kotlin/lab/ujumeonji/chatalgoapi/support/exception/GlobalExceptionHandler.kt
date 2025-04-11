@@ -14,21 +14,21 @@ class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException::class)
     fun handleBusinessException(ex: BusinessException): ResponseEntity<ErrorResponse> {
         logger.error("Business exception occurred: {}", ex.message)
-        
+
         val response = ErrorResponse(
             timestamp = LocalDateTime.now(),
             status = ex.errorCode.status.value(),
             code = ex.errorCode.code,
             message = ex.message
         )
-        
+
         return ResponseEntity.status(ex.errorCode.status).body(response)
     }
 
     @ExceptionHandler(Exception::class)
     fun handleUnexpectedException(ex: Exception): ResponseEntity<ErrorResponse> {
         logger.error("Unexpected exception occurred", ex)
-        
+
         val errorCode = ErrorCode.INTERNAL_SERVER_ERROR
         val response = ErrorResponse(
             timestamp = LocalDateTime.now(),
@@ -36,7 +36,7 @@ class GlobalExceptionHandler {
             code = errorCode.code,
             message = errorCode.message
         )
-        
+
         return ResponseEntity.status(errorCode.status).body(response)
     }
 }

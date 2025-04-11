@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 
 /**
  * API 오류 응답 형식
- * 
+ *
  * @property timestamp 오류 발생 시간
  * @property status HTTP 상태 코드
  * @property code 시스템 내부 오류 코드

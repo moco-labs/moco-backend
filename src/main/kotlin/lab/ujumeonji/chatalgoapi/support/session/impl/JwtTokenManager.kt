@@ -2,10 +2,10 @@ package lab.ujumeonji.chatalgoapi.support.session.impl
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
+import lab.ujumeonji.chatalgoapi.support.session.TokenManager
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
-import lab.ujumeonji.chatalgoapi.support.session.TokenManager
 
 class JwtTokenManager(
     private val secretKey: String,

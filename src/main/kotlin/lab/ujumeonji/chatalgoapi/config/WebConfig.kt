@@ -2,10 +2,6 @@ package lab.ujumeonji.chatalgoapi.config
 
 import lab.ujumeonji.chatalgoapi.support.auth.AuthArgumentResolver
 import lab.ujumeonji.chatalgoapi.support.auth.AuthInterceptor
-import lab.ujumeonji.chatalgoapi.support.session.TokenManager
-import lab.ujumeonji.chatalgoapi.support.session.impl.JwtTokenManager
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.CorsRegistry

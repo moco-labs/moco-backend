@@ -95,7 +95,7 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
             ResponseEntity.badRequest().build()
         }
     }
-    
+
     /**
      * 랜덤 챌린지를 오늘의 일일 챌린지로 설정합니다.
      */

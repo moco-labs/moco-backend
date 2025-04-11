@@ -9,13 +9,13 @@ import lab.ujumeonji.chatalgoapi.repository.ChatSessionRepository
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.messages.AssistantMessage
-import org.springframework.ai.chat.messages.Message as AiMessage
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
+import org.springframework.ai.chat.messages.Message as AiMessage
 
 @Service
 class ChatService(
@@ -171,10 +171,12 @@ class ChatService(
             설명: ${challenge.description}
             
             아래는 사용자와의 대화 내용입니다:
-            ${session.messages.joinToString("\n") { 
+            ${
+            session.messages.joinToString("\n") {
                 val role = if (it.sender == "user") "사용자" else "시스템"
                 "$role: ${it.content}"
-            }}
+            }
+        }
             
             대화를 기반으로 사용자의 알고리즘 문제 이해도를 0-100 점수로 평가해주세요.
             다음 기준으로 평가하세요:

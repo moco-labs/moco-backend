@@ -31,7 +31,7 @@ class AuthInterceptor(
 
         val userId = extractUserFromJwt(request)
         authContext.accountId = userId
-        
+
         return true
     }
 
