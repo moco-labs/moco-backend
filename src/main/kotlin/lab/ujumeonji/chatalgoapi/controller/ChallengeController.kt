@@ -1,18 +1,11 @@
 package lab.ujumeonji.chatalgoapi.controller
 
+import lab.ujumeonji.chatalgoapi.dto.ChallengeChatRequest
 import lab.ujumeonji.chatalgoapi.model.Challenge
 import lab.ujumeonji.chatalgoapi.service.ChallengeService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-
-// LearningRequest DTO 구조 (userId, message, sessionId?)
-// 요청 시 problemId는 경로에서 challengeId로 대체
-data class ChallengeChatRequest(
-    val userId: String,
-    val message: String,
-    val sessionId: String? = null
-)
 
 @RestController
 @RequestMapping("/api/challenges")
