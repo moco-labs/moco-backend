@@ -8,26 +8,26 @@ import java.util.*
 import lab.ujumeonji.chatalgoapi.support.session.TokenManager
 
 class JwtTokenManager(
-    private val secret: String,
-    private val accessTokenValidity: Long,
+    private val secretKey: String,
+    private val tokenExpired: Long,
 ) : TokenManager {
 
     override fun createToken(payload: Map<String, *>, issuedAt: LocalDateTime): String =
         with(issuedAt.toInstant(ZoneOffset.UTC)) {
             val now = Date.from(this)
-            val expirationDate = Date(now.time + accessTokenValidity)
+            val expirationDate = Date(now.time + tokenExpired)
 
             Jwts.builder()
                 .issuedAt(now)
                 .expiration(expirationDate)
-                .signWith(Keys.hmacShaKeyFor(secret.toByteArray()))
+                .signWith(Keys.hmacShaKeyFor(secretKey.toByteArray()))
                 .claims(payload)
                 .compact()
         }
 
     override fun verifyToken(token: String): Map<String, *> =
         Jwts.parser()
-            .verifyWith(Keys.hmacShaKeyFor(secret.toByteArray()))
+            .verifyWith(Keys.hmacShaKeyFor(secretKey.toByteArray()))
             .build()
             .parseSignedClaims(token)
             .payload

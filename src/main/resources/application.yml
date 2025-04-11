@@ -28,3 +28,7 @@ logging:
   level:
     org.springframework.data.mongodb: DEBUG
     org.springframework.ai: DEBUG
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  token-expired: ${JWT_TOKEN_EXPIRED}
