@@ -7,9 +7,24 @@ spring:
       database: ${MONGODB_DATABASE}
       auto-index-creation: true
   ai:
+    vertex:
+      ai:
+        project-id: ${VERTEXAI_PROJECT_ID}
+        location: ${VERTEXAI_LOCATION:us-central1}
+        gemini:
+          enabled: true
+          model: ${VERTEXAI_MODEL:gemini-1.5-pro}
+          temperature: 0.7
+          max-tokens: 2000
     openai:
       api-key: ${OPENAI_API_KEY}
+      base-url: https://api.openai.com
+      temperature: 0.7
+      model: gpt-4-0125-preview
+      max-tokens: 2000
+      enabled: false # Disable OpenAI since we're using Gemini
 
 logging:
   level:
     org.springframework.data.mongodb: DEBUG
+    org.springframework.ai: DEBUG

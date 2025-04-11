@@ -1,8 +1,10 @@
 package lab.ujumeonji.chatalgoapi.controller
 
 import lab.ujumeonji.chatalgoapi.dto.ChallengeChatRequest
+import lab.ujumeonji.chatalgoapi.dto.ChallengeChatResponse
 import lab.ujumeonji.chatalgoapi.model.Challenge
 import lab.ujumeonji.chatalgoapi.service.ChallengeService
+import lab.ujumeonji.chatalgoapi.service.ChatService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/challenges")
 class ChallengeController(
     private val challengeService: ChallengeService,
+    private val chatService: ChatService,
 ) {
 
     /**
@@ -110,7 +113,16 @@ class ChallengeController(
     fun chatAboutChallenge(
         @PathVariable challengeId: String,
         @RequestBody request: ChallengeChatRequest
-    ): ResponseEntity<Void> {
-        return ResponseEntity.ok().build()
+    ): ResponseEntity<ChallengeChatResponse> {
+        try {
+            val response = chatService.processChat(challengeId, request)
+            return ResponseEntity.ok(response)
+        } catch (e: IllegalArgumentException) {
+            // Log the error
+            return ResponseEntity.badRequest().build()
+        } catch (e: Exception) {
+            // Log the error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
     }
 }
