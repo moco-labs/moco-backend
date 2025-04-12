@@ -15,7 +15,6 @@ data class User(
     val email: String,
 
     val password: String,
-    val agreedToTerms: Boolean = false,
     val authProvider: String? = null, // "google", "facebook", or null for regular signup
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()

@@ -29,18 +29,12 @@ class UserService(
             throw EmailAlreadyExistsException("Email ${request.email} is already registered")
         }
 
-        // 비밀번호 일치 확인
-        if (request.password != request.confirmPassword) {
-            throw PasswordMismatchException("Password and confirmation do not match")
-        }
-
         // 새 사용자 생성
         val newUser = User(
             id = UUID.randomUUID().toString(),
             name = request.name,
             email = request.email,
             password = passwordEncoder.encode(request.password),
-            agreedToTerms = request.agreedToTerms,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )

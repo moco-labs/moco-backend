@@ -16,10 +16,4 @@ data class SignupRequest(
     @field:NotBlank(message = "Password is required")
     @field:Size(min = 6, message = "Password must be at least 6 characters")
     val password: String,
-
-    @field:NotBlank(message = "Password confirmation is required")
-    val confirmPassword: String,
-
-    @field:AssertTrue(message = "You must agree to the Terms of Service and Privacy Policy")
-    val agreedToTerms: Boolean = false
 )
