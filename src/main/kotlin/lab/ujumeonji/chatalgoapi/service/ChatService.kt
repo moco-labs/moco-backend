@@ -14,7 +14,6 @@ import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.util.*
 import org.springframework.ai.chat.messages.Message as AiMessage
 
 @Service
@@ -27,10 +26,12 @@ class ChatService(
 
     /**
      * Process a chat message for a specific challenge.
-     * If a sessionId is provided, it continues that session; otherwise, it creates a new one.
+     * If a sessionId is provided, it continues that session; otherwise, checks if there's
+     * an existing session for the challengeId and userId, and if not, creates a new session.
      *
      * @param challengeId The ID of the challenge being discussed
-     * @param request The chat request containing user ID, message, and optional session ID
+     * @param userId The ID of the user
+     * @param request The chat request containing message and optional session ID
      * @return The updated chat session information
      */
     fun processChat(challengeId: String, userId: String, request: ChallengeChatRequest): ChallengeChatResponse {
@@ -40,7 +41,7 @@ class ChatService(
 
         // Get or create session
         val session = if (request.sessionId != null) {
-            // Find existing session
+            // Find existing session by sessionId
             val existingSession = chatSessionRepository.findByIdAndUserId(request.sessionId, userId)
                 ?: throw IllegalArgumentException("Session not found or not owned by user")
 
@@ -56,12 +57,14 @@ class ChatService(
 
             existingSession
         } else {
-            // Create new session
-            ChatSession(
-                id = UUID.randomUUID().toString(),
-                challengeId = challengeId,
-                userId = userId
-            )
+            // Try to find existing session by challengeId and userId
+            val existingSessions = chatSessionRepository.findByChallengeIdAndUserId(challengeId, userId)
+
+            run {
+                // Use the existing incomplete session
+                logger.info("Found existing incomplete session for challenge: $challengeId and user: $userId")
+                existingSessions
+            }
         }
 
         // Add user message to session
@@ -231,7 +234,7 @@ class ChatService(
      * @param userId 사용자 ID
      * @return 해당 사용자의 해당 챌린지에 대한 모든 채팅 세션 목록
      */
-    fun getChatSessionsByChallengeAndUser(challengeId: String, userId: String): List<ChallengeChatResponse> {
+    fun getChatSessionsByChallengeAndUser(challengeId: String, userId: String): ChallengeChatResponse {
         // 챌린지 존재 여부 확인
         challengeService.findById(challengeId)
             ?: throw IllegalArgumentException("Challenge not found with ID: $challengeId")
@@ -240,6 +243,6 @@ class ChatService(
         val sessions = chatSessionRepository.findByChallengeIdAndUserId(challengeId, userId)
 
         // 모델을 DTO로 변환하여 반환
-        return sessions.map { it.toResponseDto() }
+        return sessions.toResponseDto()
     }
 }

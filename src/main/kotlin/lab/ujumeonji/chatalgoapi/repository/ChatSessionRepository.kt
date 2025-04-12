@@ -14,7 +14,7 @@ interface ChatSessionRepository : MongoRepository<ChatSession, String> {
     /**
      * Find chat sessions by challenge ID and user ID.
      */
-    fun findByChallengeIdAndUserId(challengeId: String, userId: String): List<ChatSession>
+    fun findByChallengeIdAndUserId(challengeId: String, userId: String): ChatSession
 
     /**
      * Find chat sessions by user ID.

@@ -139,7 +139,7 @@ class ChallengeController(
     fun getChatSessionsByChallenge(
         @RequiredAuth userId: String,
         @PathVariable challengeId: String,
-    ): ResponseEntity<List<ChallengeChatResponse>> {
+    ): ResponseEntity<ChallengeChatResponse> {
         try {
             val chatSessions = chatService.getChatSessionsByChallengeAndUser(challengeId, userId)
             return ResponseEntity.ok(chatSessions)

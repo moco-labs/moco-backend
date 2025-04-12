@@ -2,7 +2,8 @@ package lab.ujumeonji.chatalgoapi.dto
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
-import javax.validation.constraints.*
+import javax.validation.constraints.AssertTrue
+import javax.validation.constraints.Size
 
 data class SignupRequest(
     @field:NotBlank(message = "Name is required")
