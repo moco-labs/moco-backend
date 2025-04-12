@@ -24,5 +24,5 @@ logging:
     org.springframework.ai: DEBUG
 
 jwt:
-  secret-key: ${JWT_SECRET_KEY}
-  token-expired: ${JWT_TOKEN_EXPIRED}
+  secret: ${JWT_SECRET:defaultSecretKeyForDevelopmentOnly12345678901234567890}
+  expiration: 86400 # 토큰 유효 시간(초, 기본값: 24시간)

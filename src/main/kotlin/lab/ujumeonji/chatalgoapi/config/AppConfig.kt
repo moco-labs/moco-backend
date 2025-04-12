@@ -13,8 +13,8 @@ class AppConfig {
 
     @Bean
     fun tokenManager(
-        @Value("\${jwt.secret-key}") secretKey: String,
-        @Value("\${jwt.token-expired}") tokenExpired: Long,
+        @Value("\${jwt.secret}") secretKey: String,
+        @Value("\${jwt.expiration}") tokenExpired: Long,
     ): TokenManager = JwtTokenManager(secretKey, tokenExpired)
 
     @Bean

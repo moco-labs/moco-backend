@@ -1,6 +1,8 @@
 package lab.ujumeonji.chatalgoapi.service
 
+import lab.ujumeonji.chatalgoapi.dto.LoginRequest
 import lab.ujumeonji.chatalgoapi.dto.SignupRequest
+import lab.ujumeonji.chatalgoapi.exception.AuthenticationFailedException
 import lab.ujumeonji.chatalgoapi.exception.EmailAlreadyExistsException
 import lab.ujumeonji.chatalgoapi.exception.PasswordMismatchException
 import lab.ujumeonji.chatalgoapi.model.User
@@ -45,6 +47,22 @@ class UserService(
 
         // DB에 저장 및 반환
         return userRepository.save(newUser)
+    }
+
+    /**
+     * 이메일과 비밀번호로 로그인합니다.
+     */
+    fun login(request: LoginRequest): User {
+        // 이메일로 사용자 조회
+        val user = findByEmail(request.email)
+            ?: throw AuthenticationFailedException("Invalid email or password")
+
+        // 비밀번호 확인
+        if (!passwordEncoder.matches(request.password, user.password)) {
+            throw AuthenticationFailedException("Invalid email or password")
+        }
+
+        return user
     }
 
     /**
