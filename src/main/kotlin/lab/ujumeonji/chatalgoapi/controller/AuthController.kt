@@ -5,15 +5,18 @@ import lab.ujumeonji.chatalgoapi.dto.AuthResponse
 import lab.ujumeonji.chatalgoapi.dto.LoginRequest
 import lab.ujumeonji.chatalgoapi.dto.SignupRequest
 import lab.ujumeonji.chatalgoapi.dto.TokenResponse
+import lab.ujumeonji.chatalgoapi.dto.UserProfileResponse
 import lab.ujumeonji.chatalgoapi.exception.AuthenticationFailedException
 import lab.ujumeonji.chatalgoapi.exception.EmailAlreadyExistsException
 import lab.ujumeonji.chatalgoapi.exception.PasswordMismatchException
 import lab.ujumeonji.chatalgoapi.service.UserService
+import lab.ujumeonji.chatalgoapi.support.auth.RequiredAuth
 import lab.ujumeonji.chatalgoapi.support.session.TokenManager
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.BindingResult
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -123,6 +126,44 @@ class AuthController(
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(TokenResponse(false, "An unexpected error occurred"))
+        }
+    }
+
+    /**
+     * 인증된 사용자의 프로필 정보를 조회하는 API
+     * Authorization 헤더에 Bearer 토큰이 필요합니다.
+     */
+    @GetMapping("/me")
+    fun getMyProfile(@RequiredAuth userId: String): ResponseEntity<UserProfileResponse> {
+        try {
+            // 사용자 ID로 사용자 정보 조회
+            val user = userService.findById(userId)
+                ?: return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(UserProfileResponse(
+                        id = "",
+                        name = "",
+                        email = "",
+                    ))
+
+            // 사용자 정보를 DTO로 변환하여 반환
+            return ResponseEntity.ok(
+                UserProfileResponse(
+                    id = user.id ?: "",
+                    name = user.name,
+                    email = user.email,
+                )
+            )
+        } catch (e: Exception) {
+            // 기타 예외 처리
+            logger.error("Error retrieving user profile", e)
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(UserProfileResponse(
+                    id = "",
+                    name = "",
+                    email = "",
+                ))
         }
     }
 
