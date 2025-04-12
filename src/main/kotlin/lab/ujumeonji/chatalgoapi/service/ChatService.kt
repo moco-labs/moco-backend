@@ -223,4 +223,23 @@ class ChatService(
             updatedAt = this.updatedAt
         )
     }
+
+    /**
+     * 특정 챌린지에 대한 사용자의 모든 채팅 세션을 조회합니다.
+     *
+     * @param challengeId 조회할 챌린지 ID
+     * @param userId 사용자 ID
+     * @return 해당 사용자의 해당 챌린지에 대한 모든 채팅 세션 목록
+     */
+    fun getChatSessionsByChallengeAndUser(challengeId: String, userId: String): List<ChallengeChatResponse> {
+        // 챌린지 존재 여부 확인
+        challengeService.findById(challengeId)
+            ?: throw IllegalArgumentException("Challenge not found with ID: $challengeId")
+
+        // 해당 챌린지에 대한 해당 사용자의 모든 채팅 세션 조회
+        val sessions = chatSessionRepository.findByChallengeIdAndUserId(challengeId, userId)
+        
+        // 모델을 DTO로 변환하여 반환
+        return sessions.map { it.toResponseDto() }
+    }
 }

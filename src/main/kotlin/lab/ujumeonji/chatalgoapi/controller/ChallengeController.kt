@@ -109,7 +109,7 @@ class ChallengeController(
      * @param request 사용자 ID, 메시지, 세션 ID(선택)
      * @return 업데이트된 학습 세션 정보
      */
-    @PostMapping("/{challengeId}/chat")
+    @PostMapping("/{challengeId}/chats")
     fun chatAboutChallenge(
         @PathVariable challengeId: String,
         @RequestBody request: ChallengeChatRequest
@@ -122,6 +122,30 @@ class ChallengeController(
             return ResponseEntity.badRequest().build()
         } catch (e: Exception) {
             // Log the error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+    /**
+     * 특정 챌린지에 대한 사용자의 모든 채팅 세션 목록을 조회합니다.
+     *
+     * @param challengeId 조회할 챌린지 ID
+     * @param userId 조회할 사용자 ID (쿼리 파라미터로 전달)
+     * @return 해당 사용자의 해당 챌린지에 대한 모든 채팅 세션 목록
+     */
+    @GetMapping("/{challengeId}/chats")
+    fun getChatSessionsByChallenge(
+        @PathVariable challengeId: String,
+        @RequestParam userId: String
+    ): ResponseEntity<List<ChallengeChatResponse>> {
+        try {
+            val chatSessions = chatService.getChatSessionsByChallengeAndUser(challengeId, userId)
+            return ResponseEntity.ok(chatSessions)
+        } catch (e: IllegalArgumentException) {
+            // 챌린지가 존재하지 않는 경우 등의 예외 처리
+            return ResponseEntity.badRequest().build()
+        } catch (e: Exception) {
+            // 기타 예외 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
