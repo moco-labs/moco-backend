@@ -238,7 +238,7 @@ class ChatService(
 
         // 해당 챌린지에 대한 해당 사용자의 모든 채팅 세션 조회
         val sessions = chatSessionRepository.findByChallengeIdAndUserId(challengeId, userId)
-        
+
         // 모델을 DTO로 변환하여 반환
         return sessions.map { it.toResponseDto() }
     }
