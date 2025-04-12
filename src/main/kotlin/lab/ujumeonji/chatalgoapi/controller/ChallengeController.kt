@@ -5,6 +5,7 @@ import lab.ujumeonji.chatalgoapi.dto.ChallengeChatResponse
 import lab.ujumeonji.chatalgoapi.model.Challenge
 import lab.ujumeonji.chatalgoapi.service.ChallengeService
 import lab.ujumeonji.chatalgoapi.service.ChatService
+import lab.ujumeonji.chatalgoapi.support.auth.RequiredAuth
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -111,11 +112,12 @@ class ChallengeController(
      */
     @PostMapping("/{challengeId}/chats")
     fun chatAboutChallenge(
+        @RequiredAuth userId: String,
         @PathVariable challengeId: String,
         @RequestBody request: ChallengeChatRequest
     ): ResponseEntity<ChallengeChatResponse> {
         try {
-            val response = chatService.processChat(challengeId, request)
+            val response = chatService.processChat(challengeId, userId, request)
             return ResponseEntity.ok(response)
         } catch (e: IllegalArgumentException) {
             // Log the error
@@ -135,8 +137,8 @@ class ChallengeController(
      */
     @GetMapping("/{challengeId}/chats")
     fun getChatSessionsByChallenge(
+        @RequiredAuth userId: String,
         @PathVariable challengeId: String,
-        @RequestParam userId: String
     ): ResponseEntity<List<ChallengeChatResponse>> {
         try {
             val chatSessions = chatService.getChatSessionsByChallengeAndUser(challengeId, userId)

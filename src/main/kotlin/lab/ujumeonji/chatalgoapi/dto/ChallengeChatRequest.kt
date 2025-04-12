@@ -8,7 +8,6 @@ package lab.ujumeonji.chatalgoapi.dto
  * @property sessionId Optional session ID, if continuing an existing chat session
  */
 data class ChallengeChatRequest(
-    val userId: String,
     val message: String,
     val sessionId: String? = null
 )

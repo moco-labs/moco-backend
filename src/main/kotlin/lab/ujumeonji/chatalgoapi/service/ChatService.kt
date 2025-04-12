@@ -33,7 +33,7 @@ class ChatService(
      * @param request The chat request containing user ID, message, and optional session ID
      * @return The updated chat session information
      */
-    fun processChat(challengeId: String, request: ChallengeChatRequest): ChallengeChatResponse {
+    fun processChat(challengeId: String, userId: String, request: ChallengeChatRequest): ChallengeChatResponse {
         // Verify the challenge exists
         val challenge = challengeService.findById(challengeId)
             ?: throw IllegalArgumentException("Challenge not found with ID: $challengeId")
@@ -41,7 +41,7 @@ class ChatService(
         // Get or create session
         val session = if (request.sessionId != null) {
             // Find existing session
-            val existingSession = chatSessionRepository.findByIdAndUserId(request.sessionId, request.userId)
+            val existingSession = chatSessionRepository.findByIdAndUserId(request.sessionId, userId)
                 ?: throw IllegalArgumentException("Session not found or not owned by user")
 
             // Check if session is for the correct challenge
@@ -60,7 +60,7 @@ class ChatService(
             ChatSession(
                 id = UUID.randomUUID().toString(),
                 challengeId = challengeId,
-                userId = request.userId
+                userId = userId
             )
         }
 
