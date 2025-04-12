@@ -14,6 +14,7 @@ import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import java.util.*
 import org.springframework.ai.chat.messages.Message as AiMessage
 
 @Service
@@ -40,31 +41,15 @@ class ChatService(
             ?: throw IllegalArgumentException("Challenge not found with ID: $challengeId")
 
         // Get or create session
-        val session = if (request.sessionId != null) {
-            // Find existing session by sessionId
-            val existingSession = chatSessionRepository.findByIdAndUserId(request.sessionId, userId)
-                ?: throw IllegalArgumentException("Session not found or not owned by user")
+        val session = chatSessionRepository.findByChallengeIdAndUserId(challengeId, userId) ?: ChatSession(
+            id = UUID.randomUUID().toString(),
+            challengeId = challengeId,
+            userId = userId
+        )
 
-            // Check if session is for the correct challenge
-            if (existingSession.challengeId != challengeId) {
-                throw IllegalArgumentException("Session is for a different challenge")
-            }
-
-            // Check if max interactions reached
-            if (existingSession.interactionCount >= existingSession.maxInteractions) {
-                throw IllegalArgumentException("Maximum interactions reached for this session")
-            }
-
-            existingSession
-        } else {
-            // Try to find existing session by challengeId and userId
-            val existingSessions = chatSessionRepository.findByChallengeIdAndUserId(challengeId, userId)
-
-            run {
-                // Use the existing incomplete session
-                logger.info("Found existing incomplete session for challenge: $challengeId and user: $userId")
-                existingSessions
-            }
+        // Check if max interactions reached
+        if (session.interactionCount >= session.maxInteractions) {
+            throw IllegalArgumentException("Maximum interactions reached for this session")
         }
 
         // Add user message to session
@@ -241,6 +226,7 @@ class ChatService(
 
         // 해당 챌린지에 대한 해당 사용자의 모든 채팅 세션 조회
         val sessions = chatSessionRepository.findByChallengeIdAndUserId(challengeId, userId)
+            ?: throw IllegalArgumentException("Challenge not found with ID: $challengeId")
 
         // 모델을 DTO로 변환하여 반환
         return sessions.toResponseDto()
