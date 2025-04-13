@@ -16,7 +16,9 @@ spring:
       api-key: ${OPENAI_API_KEY}
       chat:
         options:
-          model: gpt-4o-mini
+          model: ${CHAT_MODEL_NAME}
+        base-url: ${CHAT_BASE_URL}
+        completions-path: ${CHAT_COMPLETION_PATH}
 
 logging:
   level:

@@ -27,7 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-//     implementation("org.springframework.ai:spring-ai-vertex-ai-gemini-spring-boot-starter")
+//    implementation("org.springframework.ai:spring-ai-vertex-ai-gemini-spring-boot-starter")
     implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
