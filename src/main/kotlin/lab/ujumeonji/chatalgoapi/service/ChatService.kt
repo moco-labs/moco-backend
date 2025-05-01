@@ -2,7 +2,6 @@ package lab.ujumeonji.chatalgoapi.service
 
 import lab.ujumeonji.chatalgoapi.dto.ChallengeChatRequest
 import lab.ujumeonji.chatalgoapi.dto.ChallengeChatResponse
-import lab.ujumeonji.chatalgoapi.dto.ChatMessage
 import lab.ujumeonji.chatalgoapi.model.ChatSession
 import lab.ujumeonji.chatalgoapi.model.Message
 import lab.ujumeonji.chatalgoapi.repository.ChatSessionRepository
@@ -199,7 +198,7 @@ class ChatService(
             challengeId = this.challengeId,
             userId = this.userId,
             messages = this.messages.map {
-                ChatMessage(
+                ChallengeChatResponse.ChatMessage(
                     content = it.content,
                     sender = it.sender,
                     timestamp = it.timestamp

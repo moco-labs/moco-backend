@@ -23,17 +23,18 @@ data class ChallengeChatResponse(
     val remainingInteractions: Int = 5,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
-)
+) {
 
-/**
- * Represents a single message in a chat conversation.
- *
- * @property content The text content of the message
- * @property sender The sender of the message ("user" or "system")
- * @property timestamp When the message was sent
- */
-data class ChatMessage(
-    val content: String,
-    val sender: String, // "user" or "system"
-    val timestamp: LocalDateTime = LocalDateTime.now()
-)
+    /**
+     * Represents a single message in a chat conversation.
+     *
+     * @property content The text content of the message
+     * @property sender The sender of the message ("user" or "system")
+     * @property timestamp When the message was sent
+     */
+    data class ChatMessage(
+        val content: String,
+        val sender: String, // "user" or "system"
+        val timestamp: LocalDateTime = LocalDateTime.now()
+    )
+}
