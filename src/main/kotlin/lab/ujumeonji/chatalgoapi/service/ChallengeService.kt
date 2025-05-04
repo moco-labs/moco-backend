@@ -3,6 +3,8 @@ package lab.ujumeonji.chatalgoapi.service
 import lab.ujumeonji.chatalgoapi.model.Challenge
 import lab.ujumeonji.chatalgoapi.repository.ChallengeRepository
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -15,6 +17,11 @@ class ChallengeService(private val challengeRepository: ChallengeRepository) {
      * 모든 챌린지를 조회합니다.
      */
     fun findAll(): List<Challenge> = challengeRepository.findAll()
+
+    /**
+     * 모든 챌린지를 페이지네이션하여 조회합니다.
+     */
+    fun findAll(pageable: Pageable): Page<Challenge> = challengeRepository.findAll(pageable)
 
     /**
      * ID로 특정 챌린지를 조회합니다.
@@ -33,10 +40,22 @@ class ChallengeService(private val challengeRepository: ChallengeRepository) {
         challengeRepository.findByDifficulty(difficulty)
 
     /**
+     * 난이도별로 챌린지를 페이지네이션하여 조회합니다.
+     */
+    fun findByDifficulty(difficulty: String, pageable: Pageable): Page<Challenge> =
+        challengeRepository.findByDifficulty(difficulty, pageable)
+
+    /**
      * 태그별로 챌린지를 조회합니다.
      */
     fun findByTag(tag: String): List<Challenge> =
         challengeRepository.findByTagsContaining(tag)
+
+    /**
+     * 태그별로 챌린지를 페이지네이션하여 조회합니다.
+     */
+    fun findByTag(tag: String, pageable: Pageable): Page<Challenge> =
+        challengeRepository.findByTagsContaining(tag, pageable)
 
     /**
      * 챌린지를 저장합니다.

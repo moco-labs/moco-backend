@@ -6,6 +6,11 @@ import lab.ujumeonji.chatalgoapi.model.Challenge
 import lab.ujumeonji.chatalgoapi.service.ChallengeService
 import lab.ujumeonji.chatalgoapi.service.ChatService
 import lab.ujumeonji.chatalgoapi.support.auth.RequiredAuth
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -23,36 +28,51 @@ class ChallengeController(
      * @param title 제목으로 필터링
      * @param difficulty 난이도로 필터링
      * @param tag 태그로 필터링
+     * @param page 페이지 번호 (0부터 시작)
+     * @param size 페이지 크기
+     * @param sort 정렬 기준 (예: "title,asc", "createdAt,desc")
      * @return 필터링된: 챌린지 목록
      */
     @GetMapping
     fun getChallenges(
         @RequestParam(required = false) title: String?,
         @RequestParam(required = false) difficulty: String?,
-        @RequestParam(required = false) tag: String?
-    ): ResponseEntity<List<Challenge>> {
+        @RequestParam(required = false) tag: String?,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(defaultValue = "createdAt,desc") sort: String
+    ): ResponseEntity<Page<Challenge>> {
+        // 정렬 설정
+        val sortParams = sort.split(",")
+        val direction = if (sortParams.size > 1 && sortParams[1].equals("asc", ignoreCase = true)) 
+            Sort.Direction.ASC else Sort.Direction.DESC
+        val sortProperty = sortParams[0]
+        val pageable: Pageable = PageRequest.of(page, size, Sort.by(direction, sortProperty))
+
         // 제목으로 필터링
         if (title != null) {
             val challenge = challengeService.findByTitle(title)
             return if (challenge != null) {
-                ResponseEntity.ok(listOf(challenge))
+                // 단일 결과를 Page로 변환
+                val singleItemPage = PageImpl(listOf(challenge), pageable, 1)
+                ResponseEntity.ok(singleItemPage)
             } else {
-                ResponseEntity.ok(emptyList())
+                ResponseEntity.ok(PageImpl(emptyList<Challenge>(), pageable, 0))
             }
         }
 
         // 난이도로 필터링
         if (difficulty != null) {
-            return ResponseEntity.ok(challengeService.findByDifficulty(difficulty))
+            return ResponseEntity.ok(challengeService.findByDifficulty(difficulty, pageable))
         }
 
         // 태그로 필터링
         if (tag != null) {
-            return ResponseEntity.ok(challengeService.findByTag(tag))
+            return ResponseEntity.ok(challengeService.findByTag(tag, pageable))
         }
 
         // 필터링 조건이 없으면 모든 챌린지 반환
-        return ResponseEntity.ok(challengeService.findAll())
+        return ResponseEntity.ok(challengeService.findAll(pageable))
     }
 
     /**
