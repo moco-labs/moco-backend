@@ -24,7 +24,7 @@ class WebConfig(
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
-            .allowedOrigins("http://localhost:3000", "https://quibe.otter.coffee")
+            .allowedOrigins("http://localhost:3000", "https://quibe.otter.coffee", "https://dygma0.github.io")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true)
