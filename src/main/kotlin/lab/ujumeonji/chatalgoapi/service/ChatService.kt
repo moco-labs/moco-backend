@@ -225,9 +225,17 @@ class ChatService(
 
         // 해당 챌린지에 대한 해당 사용자의 모든 채팅 세션 조회
         val sessions = chatSessionRepository.findByChallengeIdAndUserId(challengeId, userId)
-            ?: throw IllegalArgumentException("Challenge not found with ID: $challengeId")
 
-        // 모델을 DTO로 변환하여 반환
-        return sessions.toResponseDto()
+        // 세션이 없는 경우 빈 메시지 목록으로 응답
+        return sessions?.toResponseDto() ?: ChallengeChatResponse(
+            sessionId = "",
+            challengeId = challengeId,
+            userId = userId,
+            messages = emptyList(),
+            understandingScore = 0,
+            remainingInteractions = 5,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
+        )
     }
 }
