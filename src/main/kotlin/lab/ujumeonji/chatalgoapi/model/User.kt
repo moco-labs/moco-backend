@@ -10,12 +10,10 @@ data class User(
     @Id
     val id: String? = null,
     val name: String,
-
     @Indexed(unique = true)
     val email: String,
-
     val password: String,
-    val authProvider: String? = null, // "google", "facebook", or null for regular signup
+    val authProvider: String? = null,
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 )

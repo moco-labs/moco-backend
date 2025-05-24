@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 @Configuration
 class AppConfig {
-
     @Bean
     fun tokenManager(
         @Value("\${jwt.secret}") secretKey: String,

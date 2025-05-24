@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class AiConfig {
-
     @Bean
     fun vertexAiGeminiApi(builder: ChatClient.Builder): ChatClient = builder.build()
 }

@@ -12,15 +12,18 @@ import org.springframework.web.servlet.HandlerInterceptor
 class AuthInterceptor(
     private val tokenManager: TokenManager,
     private val authContext: AuthContext,
-    private val authNotRequiredConditions: MutableSet<UriAndMethodsCondition> = mutableSetOf()
+    private val authNotRequiredConditions: MutableSet<UriAndMethodsCondition> = mutableSetOf(),
 ) : HandlerInterceptor {
-
     fun setAuthNotRequiredConditions(vararg conditions: UriAndMethodsCondition) {
         authNotRequiredConditions.clear()
         authNotRequiredConditions.addAll(conditions)
     }
 
-    override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
+    override fun preHandle(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        handler: Any,
+    ): Boolean {
         if (CorsUtils.isPreFlightRequest(request)) {
             return true
         }
@@ -54,9 +57,12 @@ class AuthInterceptor(
 
     data class UriAndMethodsCondition(
         val uriPattern: String,
-        val httpMethods: Set<HttpMethod>
+        val httpMethods: Set<HttpMethod>,
     ) {
-        fun match(requestURI: String, httpMethod: HttpMethod): Boolean {
+        fun match(
+            requestURI: String,
+            httpMethod: HttpMethod,
+        ): Boolean {
             return requestURI == uriPattern && httpMethods.contains(httpMethod)
         }
     }

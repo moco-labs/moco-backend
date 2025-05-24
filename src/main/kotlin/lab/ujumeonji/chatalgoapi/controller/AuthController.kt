@@ -27,16 +27,15 @@ import java.time.LocalDateTime
 @RequestMapping("/api/auth")
 class AuthController(
     private val userService: UserService,
-    private val jwtService: TokenManager
+    private val jwtService: TokenManager,
 ) {
     private val logger = LoggerFactory.getLogger(AuthController::class.java)
 
-    /**
-     * 이메일과 비밀번호를 사용한 회원가입 API
-     */
     @PostMapping("/signup")
-    fun signup(@Valid @RequestBody request: SignupRequest, bindingResult: BindingResult): ResponseEntity<AuthResponse> {
-        // 유효성 검증 실패 처리
+    fun signup(
+        @Valid @RequestBody request: SignupRequest,
+        bindingResult: BindingResult,
+    ): ResponseEntity<AuthResponse> {
         if (bindingResult.hasErrors()) {
             val errorMessage = bindingResult.fieldErrors.joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
             return ResponseEntity
@@ -45,10 +44,8 @@ class AuthController(
         }
 
         try {
-            // 회원가입 처리
             val user = userService.signUp(request)
 
-            // 성공 응답
             return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
@@ -57,21 +54,18 @@ class AuthController(
                         message = "Registration successful",
                         userId = user.id,
                         email = user.email,
-                        name = user.name
-                    )
+                        name = user.name,
+                    ),
                 )
         } catch (e: EmailAlreadyExistsException) {
-            // 이메일 중복 예외 처리
             return ResponseEntity
                 .badRequest()
                 .body(AuthResponse(false, e.message ?: "Email already exists"))
         } catch (e: PasswordMismatchException) {
-            // 비밀번호 불일치 예외 처리
             return ResponseEntity
                 .badRequest()
                 .body(AuthResponse(false, e.message ?: "Password and confirmation don't match"))
         } catch (e: Exception) {
-            // 기타 예외 처리
             logger.error("Error during user registration", e)
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -79,12 +73,11 @@ class AuthController(
         }
     }
 
-    /**
-     * 이메일과 비밀번호를 사용한 로그인 API
-     */
     @PostMapping("/signin")
-    fun login(@Valid @RequestBody request: LoginRequest, bindingResult: BindingResult): ResponseEntity<TokenResponse> {
-        // 유효성 검증 실패 처리
+    fun login(
+        @Valid @RequestBody request: LoginRequest,
+        bindingResult: BindingResult,
+    ): ResponseEntity<TokenResponse> {
         if (bindingResult.hasErrors()) {
             val errorMessage = bindingResult.fieldErrors.joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
             return ResponseEntity
@@ -93,18 +86,16 @@ class AuthController(
         }
 
         try {
-            // 로그인 시도
             val user = userService.login(request)
 
-            // JWT 토큰 생성
-            val token = jwtService.createToken(
-                mapOf(
-                    "id" to user.id,
-                ),
-                issuedAt = LocalDateTime.now()
-            )
+            val token =
+                jwtService.createToken(
+                    mapOf(
+                        "id" to user.id,
+                    ),
+                    issuedAt = LocalDateTime.now(),
+                )
 
-            // 성공 응답
             return ResponseEntity.ok(
                 TokenResponse(
                     success = true,
@@ -113,15 +104,13 @@ class AuthController(
                     userId = user.id,
                     name = user.name,
                     email = user.email,
-                )
+                ),
             )
         } catch (e: AuthenticationFailedException) {
-            // 인증 실패 예외 처리
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(TokenResponse(false, e.message ?: "Authentication failed"))
         } catch (e: Exception) {
-            // 기타 예외 처리
             logger.error("Error during user login", e)
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -129,63 +118,53 @@ class AuthController(
         }
     }
 
-    /**
-     * 인증된 사용자의 프로필 정보를 조회하는 API
-     * Authorization 헤더에 Bearer 토큰이 필요합니다.
-     */
     @GetMapping("/me")
-    fun getMyProfile(@RequiredAuth userId: String): ResponseEntity<UserProfileResponse> {
+    fun getMyProfile(
+        @RequiredAuth userId: String,
+    ): ResponseEntity<UserProfileResponse> {
         try {
-            // 사용자 ID로 사용자 정보 조회
-            val user = userService.findById(userId)
-                ?: return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body(UserProfileResponse(
-                        id = "",
-                        name = "",
-                        email = "",
-                    ))
+            val user =
+                userService.findById(userId)
+                    ?: return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(
+                            UserProfileResponse(
+                                id = "",
+                                name = "",
+                                email = "",
+                            ),
+                        )
 
-            // 사용자 정보를 DTO로 변환하여 반환
             return ResponseEntity.ok(
                 UserProfileResponse(
                     id = user.id ?: "",
                     name = user.name,
                     email = user.email,
-                )
+                ),
             )
         } catch (e: Exception) {
-            // 기타 예외 처리
             logger.error("Error retrieving user profile", e)
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(UserProfileResponse(
-                    id = "",
-                    name = "",
-                    email = "",
-                ))
+                .body(
+                    UserProfileResponse(
+                        id = "",
+                        name = "",
+                        email = "",
+                    ),
+                )
         }
     }
 
-    /**
-     * 소셜 로그인 회원가입 API (Google)
-     * 실제 구현은 OAuth2 클라이언트 설정과 함께 추가 개발이 필요합니다.
-     */
     @PostMapping("/signup/google")
     fun signupWithGoogle(): ResponseEntity<AuthResponse> {
-        // TODO: Google OAuth 구현
         return ResponseEntity
             .status(HttpStatus.NOT_IMPLEMENTED)
             .body(AuthResponse(false, "Google signup not yet implemented"))
     }
 
-    /**
-     * 소셜 로그인 회원가입 API (Facebook)
-     * 실제 구현은 OAuth2 클라이언트 설정과 함께 추가 개발이 필요합니다.
-     */
     @PostMapping("/signup/facebook")
     fun signupWithFacebook(): ResponseEntity<AuthResponse> {
-        // TODO: Facebook OAuth 구현
         return ResponseEntity
             .status(HttpStatus.NOT_IMPLEMENTED)
             .body(AuthResponse(false, "Facebook signup not yet implemented"))

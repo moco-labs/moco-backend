@@ -6,20 +6,24 @@ import lab.ujumeonji.chatalgoapi.service.DailyChallengeService
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/daily-challenges")
 class DailyChallengeController(private val dailyChallengeService: DailyChallengeService) {
-
-    /**
-     * 모든 일일 챌린지를 조회하거나 날짜 범위로 필터링합니다.
-     */
     @GetMapping
     fun getDailyChallenges(
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) startDate: LocalDate?,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) endDate: LocalDate?
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) endDate: LocalDate?,
     ): ResponseEntity<List<DailyChallenge>> {
         return if (startDate != null && endDate != null) {
             ResponseEntity.ok(dailyChallengeService.findByDateRange(startDate, endDate))
@@ -28,11 +32,10 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
         }
     }
 
-    /**
-     * ID로 특정 일일 챌린지를 조회합니다.
-     */
     @GetMapping("/{id}")
-    fun getDailyChallenge(@PathVariable id: String): ResponseEntity<DailyChallenge> {
+    fun getDailyChallenge(
+        @PathVariable id: String,
+    ): ResponseEntity<DailyChallenge> {
         val dailyChallenge = dailyChallengeService.findById(id)
         return if (dailyChallenge != null) {
             ResponseEntity.ok(dailyChallenge)
@@ -41,9 +44,6 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
         }
     }
 
-    /**
-     * 오늘의 일일 챌린지를 조회합니다.
-     */
     @GetMapping("/today")
     fun getTodayChallenge(): ResponseEntity<Challenge> {
         val challenge = dailyChallengeService.findTodayChallenge()
@@ -54,12 +54,9 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
         }
     }
 
-    /**
-     * 특정 날짜의 일일 챌린지를 조회합니다.
-     */
     @GetMapping("/date/{date}")
     fun getDailyChallengeByDate(
-        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate
+        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate,
     ): ResponseEntity<Challenge> {
         val challenge = dailyChallengeService.findChallengeForDate(date)
         return if (challenge != null) {
@@ -69,11 +66,10 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
         }
     }
 
-    /**
-     * 새로운 일일 챌린지를 생성합니다.
-     */
     @PostMapping
-    fun createDailyChallenge(@RequestBody dailyChallenge: DailyChallenge): ResponseEntity<DailyChallenge> {
+    fun createDailyChallenge(
+        @RequestBody dailyChallenge: DailyChallenge,
+    ): ResponseEntity<DailyChallenge> {
         return try {
             ResponseEntity.status(HttpStatus.CREATED).body(dailyChallengeService.save(dailyChallenge))
         } catch (e: IllegalArgumentException) {
@@ -81,13 +77,10 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
         }
     }
 
-    /**
-     * 특정 날짜에 일일 챌린지를 설정합니다.
-     */
     @PostMapping("/set")
     fun setDailyChallenge(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate,
-        @RequestParam challengeId: String
+        @RequestParam challengeId: String,
     ): ResponseEntity<DailyChallenge> {
         return try {
             ResponseEntity.status(HttpStatus.CREATED).body(dailyChallengeService.setDailyChallenge(date, challengeId))
@@ -96,12 +89,9 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
         }
     }
 
-    /**
-     * 랜덤 챌린지를 오늘의 일일 챌린지로 설정합니다.
-     */
     @PostMapping("/random")
     fun setRandomDailyChallenge(
-        @RequestParam(required = false, defaultValue = "7") excludeRecentDays: Int
+        @RequestParam(required = false, defaultValue = "7") excludeRecentDays: Int,
     ): ResponseEntity<DailyChallenge> {
         val dailyChallenge = dailyChallengeService.setRandomDailyChallenge(excludeRecentDays)
         return if (dailyChallenge != null) {
@@ -111,13 +101,10 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
         }
     }
 
-    /**
-     * 일일 챌린지를 업데이트합니다.
-     */
     @PutMapping("/{id}")
     fun updateDailyChallenge(
         @PathVariable id: String,
-        @RequestBody dailyChallenge: DailyChallenge
+        @RequestBody dailyChallenge: DailyChallenge,
     ): ResponseEntity<DailyChallenge> {
         return try {
             val updatedDailyChallenge = dailyChallengeService.update(id, dailyChallenge)
@@ -131,11 +118,10 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
         }
     }
 
-    /**
-     * 일일 챌린지를 삭제합니다.
-     */
     @DeleteMapping("/{id}")
-    fun deleteDailyChallenge(@PathVariable id: String): ResponseEntity<Void> {
+    fun deleteDailyChallenge(
+        @PathVariable id: String,
+    ): ResponseEntity<Void> {
         dailyChallengeService.deleteById(id)
         return ResponseEntity.noContent().build()
     }

@@ -11,13 +11,13 @@ data class Lesson(
     val challengeId: String,
     val sections: List<LessonSection> = emptyList(),
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 )
 
 data class LessonSection(
     val title: String,
     val type: SectionType,
-    val data: Any? = null
+    val data: Any? = null,
 )
 
 enum class SectionType {
@@ -30,7 +30,7 @@ data class Quiz(
     val question: String,
     val displayTokens: List<Token>,
     val choices: List<QuizOption>,
-    val correctOptionIndex: Int
+    val correctOptionIndex: Int,
 )
 
 data class Token(
@@ -52,5 +52,5 @@ data class CodeExercise(
 data class CodeStep(
     val order: Int,
     val code: String,
-    val explanation: String
+    val explanation: String,
 )

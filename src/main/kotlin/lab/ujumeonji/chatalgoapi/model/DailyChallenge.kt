@@ -10,5 +10,5 @@ data class DailyChallenge(
     val id: String? = null,
     val challengeId: String,
     val date: LocalDate = LocalDate.now(),
-    val isActive: Boolean = true
+    val isActive: Boolean = true,
 )

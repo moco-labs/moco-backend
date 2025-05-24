@@ -11,9 +11,8 @@ import org.springframework.web.method.support.ModelAndViewContainer
 
 @Component
 class AuthArgumentResolver(
-    private val authContext: AuthContext
+    private val authContext: AuthContext,
 ) : HandlerMethodArgumentResolver {
-
     override fun supportsParameter(parameter: MethodParameter): Boolean =
         parameter.hasParameterAnnotation(RequiredAuth::class.java) && parameter.parameterType == String::class.java
 
@@ -21,12 +20,13 @@ class AuthArgumentResolver(
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory?
-    ): String? = when {
-        parameter.hasParameterAnnotation(RequiredAuth::class.java) &&
+        binderFactory: WebDataBinderFactory?,
+    ): String? =
+        when {
+            parameter.hasParameterAnnotation(RequiredAuth::class.java) &&
                 parameter.parameterType == String::class.java ->
-            authContext.accountId ?: throw BusinessException(ErrorCode.UNAUTHORIZED)
+                authContext.accountId ?: throw BusinessException(ErrorCode.UNAUTHORIZED)
 
-        else -> authContext.accountId
-    }
+            else -> authContext.accountId
+        }
 }

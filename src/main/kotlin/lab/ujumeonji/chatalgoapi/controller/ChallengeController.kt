@@ -13,7 +13,15 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/challenges")
@@ -21,18 +29,6 @@ class ChallengeController(
     private val challengeService: ChallengeService,
     private val chatService: ChatService,
 ) {
-
-    /**
-     * 필터링 조건에 따른 챌린지 조회합니다.
-     *
-     * @param title 제목으로 필터링
-     * @param difficulty 난이도로 필터링
-     * @param tag 태그로 필터링
-     * @param page 페이지 번호 (0부터 시작)
-     * @param size 페이지 크기
-     * @param sort 정렬 기준 (예: "title,asc", "createdAt,desc")
-     * @return 필터링된: 챌린지 목록
-     */
     @GetMapping
     fun getChallenges(
         @RequestParam(required = false) title: String?,
@@ -40,20 +36,21 @@ class ChallengeController(
         @RequestParam(required = false) tag: String?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
-        @RequestParam(defaultValue = "createdAt,desc") sort: String
+        @RequestParam(defaultValue = "createdAt,desc") sort: String,
     ): ResponseEntity<Page<Challenge>> {
-        // 정렬 설정
         val sortParams = sort.split(",")
-        val direction = if (sortParams.size > 1 && sortParams[1].equals("asc", ignoreCase = true)) 
-            Sort.Direction.ASC else Sort.Direction.DESC
+        val direction =
+            if (sortParams.size > 1 && sortParams[1].equals("asc", ignoreCase = true)) {
+                Sort.Direction.ASC
+            } else {
+                Sort.Direction.DESC
+            }
         val sortProperty = sortParams[0]
         val pageable: Pageable = PageRequest.of(page, size, Sort.by(direction, sortProperty))
 
-        // 제목으로 필터링
         if (title != null) {
             val challenge = challengeService.findByTitle(title)
             return if (challenge != null) {
-                // 단일 결과를 Page로 변환
                 val singleItemPage = PageImpl(listOf(challenge), pageable, 1)
                 ResponseEntity.ok(singleItemPage)
             } else {
@@ -61,25 +58,21 @@ class ChallengeController(
             }
         }
 
-        // 난이도로 필터링
         if (difficulty != null) {
             return ResponseEntity.ok(challengeService.findByDifficulty(difficulty, pageable))
         }
 
-        // 태그로 필터링
         if (tag != null) {
             return ResponseEntity.ok(challengeService.findByTag(tag, pageable))
         }
 
-        // 필터링 조건이 없으면 모든 챌린지 반환
         return ResponseEntity.ok(challengeService.findAll(pageable))
     }
 
-    /**
-     * ID로 특정 챌린지를 조회합니다.
-     */
     @GetMapping("/{id}")
-    fun getChallenge(@PathVariable id: String): ResponseEntity<Challenge> {
+    fun getChallenge(
+        @PathVariable id: String,
+    ): ResponseEntity<Challenge> {
         val challenge = challengeService.findById(id)
         return if (challenge != null) {
             ResponseEntity.ok(challenge)
@@ -88,21 +81,17 @@ class ChallengeController(
         }
     }
 
-    /**
-     * 새로운 챌린지를 생성합니다.
-     */
     @PostMapping
-    fun createChallenge(@RequestBody challenge: Challenge): ResponseEntity<Challenge> {
+    fun createChallenge(
+        @RequestBody challenge: Challenge,
+    ): ResponseEntity<Challenge> {
         return ResponseEntity.status(HttpStatus.CREATED).body(challengeService.save(challenge))
     }
 
-    /**
-     * 기존 챌린지를 수정합니다.
-     */
     @PutMapping("/{id}")
     fun updateChallenge(
         @PathVariable id: String,
-        @RequestBody challenge: Challenge
+        @RequestBody challenge: Challenge,
     ): ResponseEntity<Challenge> {
         val updatedChallenge = challengeService.update(id, challenge)
         return if (updatedChallenge != null) {
@@ -112,49 +101,30 @@ class ChallengeController(
         }
     }
 
-    /**
-     * 특정 챌린지를 삭제합니다.
-     */
     @DeleteMapping("/{id}")
-    fun deleteChallenge(@PathVariable id: String): ResponseEntity<Void> {
+    fun deleteChallenge(
+        @PathVariable id: String,
+    ): ResponseEntity<Void> {
         challengeService.deleteById(id)
         return ResponseEntity.noContent().build()
     }
 
-    /**
-     * 특정 챌린지에 대한 대화형 학습 세션을 진행합니다.
-     * sessionId가 제공되면 기존 세션을 이어가고, 없으면 새로 시작합니다.
-     * 최대 5번 상호작용 후 이해도 점수가 포함된 결과가 반환됩니다.
-     *
-     * @param challengeId 대화 대상 챌린지 ID
-     * @param request 사용자 ID, 메시지, 세션 ID(선택)
-     * @return 업데이트된 학습 세션 정보
-     */
     @PostMapping("/{challengeId}/chats")
     fun chatAboutChallenge(
         @RequiredAuth userId: String,
         @PathVariable challengeId: String,
-        @RequestBody request: ChallengeChatRequest
+        @RequestBody request: ChallengeChatRequest,
     ): ResponseEntity<ChallengeChatResponse> {
         try {
             val response = chatService.processChat(challengeId, userId, request)
             return ResponseEntity.ok(response)
         } catch (e: IllegalArgumentException) {
-            // Log the error
             return ResponseEntity.badRequest().build()
         } catch (e: Exception) {
-            // Log the error
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
 
-    /**
-     * 특정 챌린지에 대한 사용자의 모든 채팅 세션 목록을 조회합니다.
-     *
-     * @param challengeId 조회할 챌린지 ID
-     * @param userId 조회할 사용자 ID (쿼리 파라미터로 전달)
-     * @return 해당 사용자의 해당 챌린지에 대한 모든 채팅 세션 목록
-     */
     @GetMapping("/{challengeId}/chats")
     fun getChatSessionsByChallenge(
         @RequiredAuth userId: String,
@@ -164,10 +134,8 @@ class ChallengeController(
             val chatSessions = chatService.getChatSessionsByChallengeAndUser(challengeId, userId)
             return ResponseEntity.ok(chatSessions)
         } catch (e: IllegalArgumentException) {
-            // 챌린지가 존재하지 않는 경우 등의 예외 처리
             return ResponseEntity.badRequest().build()
         } catch (e: Exception) {
-            // 기타 예외 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }

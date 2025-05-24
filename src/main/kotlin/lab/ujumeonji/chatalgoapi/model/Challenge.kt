@@ -18,7 +18,7 @@ data class Challenge(
     val examples: List<ChallengeExample> = emptyList(),
     val constraints: List<String> = emptyList(),
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 )
 
 data class ChallengeExample(

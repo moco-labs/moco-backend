@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit
 @Configuration
 @EnableMongoRepositories(basePackages = ["lab.ujumeonji.chatalgoapi.repository"])
 class MongoConfig : AbstractMongoClientConfiguration() {
-
     @Value("\${spring.data.mongodb.uri}")
     private lateinit var mongoUri: String
 
@@ -27,17 +26,18 @@ class MongoConfig : AbstractMongoClientConfiguration() {
     override fun mongoClient(): MongoClient {
         val connectionString = ConnectionString(mongoUri)
 
-        val mongoClientSettings = MongoClientSettings.builder()
-            .applyConnectionString(connectionString)
-            .applyToSocketSettings { builder ->
-                builder.connectTimeout(5000, TimeUnit.MILLISECONDS)
-                builder.readTimeout(10000, TimeUnit.MILLISECONDS)
-            }
-            .applyToConnectionPoolSettings { builder ->
-                builder.maxConnectionIdleTime(60000, TimeUnit.MILLISECONDS)
-                builder.maxSize(20)
-            }
-            .build()
+        val mongoClientSettings =
+            MongoClientSettings.builder()
+                .applyConnectionString(connectionString)
+                .applyToSocketSettings { builder ->
+                    builder.connectTimeout(5000, TimeUnit.MILLISECONDS)
+                    builder.readTimeout(10000, TimeUnit.MILLISECONDS)
+                }
+                .applyToConnectionPoolSettings { builder ->
+                    builder.maxConnectionIdleTime(60000, TimeUnit.MILLISECONDS)
+                    builder.maxSize(20)
+                }
+                .build()
 
         return MongoClients.create(mongoClientSettings)
     }
