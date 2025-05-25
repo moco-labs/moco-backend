@@ -1,10 +1,12 @@
 package lab.ujumeonji.chatalgoapi.model
 
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.TypeAlias
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDateTime
 
 @Document(collection = "challenges")
+@TypeAlias("Challenge")
 data class Challenge(
     @Id
     val id: String? = null,
