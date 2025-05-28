@@ -7,10 +7,8 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 
-# Create directory for configuration
 RUN mkdir -p /app/config
 
-# Create directory for logs
 RUN mkdir -p /var/log/chatalgo-api
 
 EXPOSE 8080
