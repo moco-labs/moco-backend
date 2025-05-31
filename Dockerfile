@@ -9,7 +9,7 @@ COPY --from=build /app/build/libs/*.jar app.jar
 
 RUN mkdir -p /app/config
 
-RUN mkdir -p /var/log/chatalgo-api
+RUN mkdir -p /var/log/moco-api
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
