@@ -1,7 +1,6 @@
-package lab.ujumeonji.moco.service.challenge
+package lab.ujumeonji.moco.model.challenge
 
 import lab.ujumeonji.moco.adapter.DailyChallengeRepositoryAdapter
-import lab.ujumeonji.moco.model.Challenge
 import lab.ujumeonji.moco.model.DailyChallenge
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -20,22 +19,6 @@ class DailyChallengeService(
     fun findAll(): List<DailyChallenge> = dailyChallengeRepositoryAdapter.findAll()
 
     fun findById(id: String): DailyChallenge? = dailyChallengeRepositoryAdapter.findById(id).orElse(null)
-
-    fun findByDate(date: LocalDate): DailyChallenge? = dailyChallengeRepositoryAdapter.findByDate(date)
-
-    fun findTodaysChallenge(): DailyChallenge? = dailyChallengeRepositoryAdapter.findByDate(LocalDate.now())
-
-    fun findActiveChallenges(): List<DailyChallenge> = dailyChallengeRepositoryAdapter.findByIsActiveTrue()
-
-    fun findByChallenge(challengeId: String): List<DailyChallenge> {
-        val challenge = challengeService.findById(challengeId)
-        if (challenge == null) {
-            logger.warn("Challenge not found with ID: $challengeId")
-            return emptyList()
-        }
-
-        return dailyChallengeRepositoryAdapter.findByChallengeId(challengeId)
-    }
 
     fun findBetweenDates(
         startDate: LocalDate,
@@ -59,7 +42,7 @@ class DailyChallengeService(
 
         val dailyChallenge =
             DailyChallenge.create(
-                challengeId = challengeId,
+                challenge = challenge,
                 date = date,
                 isActive = isActive,
             )
@@ -68,75 +51,9 @@ class DailyChallengeService(
         return dailyChallengeRepositoryAdapter.save(dailyChallenge)
     }
 
-    fun updateDailyChallenge(
-        id: String,
-        updatedDailyChallenge: DailyChallenge,
-    ): DailyChallenge? {
-        val existingDailyChallenge = dailyChallengeRepositoryAdapter.findById(id).orElse(null)
-
-        return if (existingDailyChallenge != null) {
-            val dailyChallenge =
-                DailyChallenge.create(
-                    id = existingDailyChallenge.id,
-                    challengeId = updatedDailyChallenge.challengeId,
-                    date = updatedDailyChallenge.date,
-                    isActive = updatedDailyChallenge.isActive,
-                )
-            dailyChallengeRepositoryAdapter.save(dailyChallenge)
-        } else {
-            null
-        }
-    }
-
-    fun activateChallenge(
-        id: String,
-        isActive: Boolean = true,
-    ): DailyChallenge? {
-        val existingDailyChallenge = dailyChallengeRepositoryAdapter.findById(id).orElse(null)
-
-        return if (existingDailyChallenge != null) {
-            val dailyChallenge =
-                DailyChallenge.create(
-                    id = existingDailyChallenge.id,
-                    challengeId = existingDailyChallenge.challengeId,
-                    date = existingDailyChallenge.date,
-                    isActive = isActive,
-                )
-            logger.info("Updating daily challenge active status: $id -> $isActive")
-            dailyChallengeRepositoryAdapter.save(dailyChallenge)
-        } else {
-            null
-        }
-    }
-
     fun deleteById(id: String) {
         dailyChallengeRepositoryAdapter.deleteById(id)
     }
-
-    fun deleteByChallengeId(challengeId: String) {
-        val dailyChallenges = dailyChallengeRepositoryAdapter.findByChallengeId(challengeId)
-        dailyChallengeRepositoryAdapter.deleteAll(dailyChallenges)
-    }
-
-    fun getOrCreateTodaysChallenge(challengeId: String): DailyChallenge {
-        val today = LocalDate.now()
-        val existingChallenge = dailyChallengeRepositoryAdapter.findByDate(today)
-
-        return if (existingChallenge != null) {
-            logger.info("Today's challenge already exists: ${existingChallenge.id}")
-            existingChallenge
-        } else {
-            val challenge = challengeService.findById(challengeId)
-            if (challenge != null) {
-                logger.info("Creating today's challenge with challenge ID: $challengeId")
-                createDailyChallenge(challengeId, today, true)
-            } else {
-                throw IllegalArgumentException("Challenge not found with ID: $challengeId")
-            }
-        }
-    }
-
-    fun findToday(): DailyChallenge? = dailyChallengeRepositoryAdapter.findByDate(LocalDate.now())
 
     fun findByDateRange(
         startDate: LocalDate,

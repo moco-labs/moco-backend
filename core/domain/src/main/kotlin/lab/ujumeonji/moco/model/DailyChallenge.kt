@@ -1,5 +1,6 @@
 package lab.ujumeonji.moco.model
 
+import lab.ujumeonji.moco.model.challenge.Challenge
 import java.time.LocalDate
 
 class DailyChallenge(
@@ -10,14 +11,12 @@ class DailyChallenge(
 ) {
     companion object {
         fun create(
-            id: String? = null,
-            challengeId: String,
+            challenge: Challenge,
             date: LocalDate = LocalDate.now(),
             isActive: Boolean = true,
         ): DailyChallenge =
             DailyChallenge(
-                id = id,
-                challengeId = challengeId,
+                challengeId = challenge.id!!,
                 date = date,
                 isActive = isActive,
             )

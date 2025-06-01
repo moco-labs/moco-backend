@@ -2,7 +2,7 @@ package lab.ujumeonji.moco.controller.challenge
 
 import lab.ujumeonji.moco.model.Challenge
 import lab.ujumeonji.moco.model.DailyChallenge
-import lab.ujumeonji.moco.service.challenge.DailyChallengeService
+import lab.ujumeonji.moco.model.challenge.DailyChallengeService
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

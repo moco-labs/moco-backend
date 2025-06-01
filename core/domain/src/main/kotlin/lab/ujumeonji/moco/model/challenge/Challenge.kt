@@ -1,4 +1,4 @@
-package lab.ujumeonji.moco.model
+package lab.ujumeonji.moco.model.challenge
 
 import java.time.LocalDateTime
 

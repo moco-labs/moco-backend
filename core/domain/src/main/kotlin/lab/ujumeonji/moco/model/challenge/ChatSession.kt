@@ -1,4 +1,4 @@
-package lab.ujumeonji.moco.model
+package lab.ujumeonji.moco.model.challenge
 
 import java.time.LocalDateTime
 
@@ -12,7 +12,13 @@ class ChatSession(
     val maxInteractions: Int = 5,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
-)
+) {
+    val isMaxInteractionsReached: Boolean
+        get() = interactionCount >= maxInteractions
+
+    val isLastInteraction: Boolean
+        get() = interactionCount + 1 >= maxInteractions
+}
 
 class Message(
     val content: String,

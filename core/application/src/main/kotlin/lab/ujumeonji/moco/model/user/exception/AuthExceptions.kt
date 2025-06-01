@@ -1,4 +1,4 @@
-package lab.ujumeonji.moco.service.user.exception
+package lab.ujumeonji.moco.model.user.exception
 
 class EmailAlreadyExistsException(message: String) : RuntimeException(message)
 

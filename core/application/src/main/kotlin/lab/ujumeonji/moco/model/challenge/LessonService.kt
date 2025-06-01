@@ -1,14 +1,6 @@
-package lab.ujumeonji.moco.service.challenge
+package lab.ujumeonji.moco.model.challenge
 
 import lab.ujumeonji.moco.adapter.LessonRepositoryAdapter
-import lab.ujumeonji.moco.model.CodeExercise
-import lab.ujumeonji.moco.model.CodeStep
-import lab.ujumeonji.moco.model.Lesson
-import lab.ujumeonji.moco.model.LessonSection
-import lab.ujumeonji.moco.model.Quiz
-import lab.ujumeonji.moco.model.QuizOption
-import lab.ujumeonji.moco.model.SectionType
-import lab.ujumeonji.moco.model.Token
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

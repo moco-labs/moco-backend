@@ -1,7 +1,6 @@
-package lab.ujumeonji.moco.service.challenge
+package lab.ujumeonji.moco.model.challenge
 
 import lab.ujumeonji.moco.adapter.ChallengeRepositoryAdapter
-import lab.ujumeonji.moco.model.Challenge
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -58,7 +57,7 @@ class ChallengeService(private val challengeRepositoryAdapter: ChallengeReposito
                     content = updatedChallenge.content,
                     examples = updatedChallenge.examples,
                     constraints = updatedChallenge.constraints,
-                    createdAt = existingChallenge.createdAt,
+                    createdAt = existingChallenge,
                     updatedAt = LocalDateTime.now(),
                 )
             challengeRepositoryAdapter.save(challenge)
