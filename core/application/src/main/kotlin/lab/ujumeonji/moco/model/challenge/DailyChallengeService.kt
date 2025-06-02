@@ -4,12 +4,10 @@ import lab.ujumeonji.moco.adapter.DailyChallengeRepositoryAdapter
 import lab.ujumeonji.moco.model.DailyChallenge
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 import kotlin.random.Random
 
 @Service
-@Transactional
 class DailyChallengeService(
     private val dailyChallengeRepositoryAdapter: DailyChallengeRepositoryAdapter,
     private val challengeService: ChallengeService,
@@ -83,9 +81,7 @@ class DailyChallengeService(
         val existingDailyChallenge = dailyChallengeRepositoryAdapter.findByDate(dailyChallenge.date)
         if (existingDailyChallenge != null && existingDailyChallenge.id != dailyChallenge.id) {
             val updatedExisting =
-                DailyChallenge.create(
-                    id = existingDailyChallenge.id,
-                    challengeId = existingDailyChallenge.challengeId,
+                existingDailyChallenge.copy(
                     date = existingDailyChallenge.date,
                     isActive = false,
                 )
@@ -109,14 +105,7 @@ class DailyChallengeService(
                 throw IllegalArgumentException("Challenge with ID ${updatedDailyChallenge.challengeId} does not exist")
             }
 
-            val dailyChallenge =
-                DailyChallenge.create(
-                    id = existingDailyChallenge.id,
-                    challengeId = updatedDailyChallenge.challengeId,
-                    date = updatedDailyChallenge.date,
-                    isActive = updatedDailyChallenge.isActive,
-                )
-            dailyChallengeRepositoryAdapter.save(dailyChallenge)
+            dailyChallengeRepositoryAdapter.save(updatedDailyChallenge)
         } else {
             null
         }
@@ -134,21 +123,14 @@ class DailyChallengeService(
         val existingDailyChallenge = dailyChallengeRepositoryAdapter.findByDate(date)
 
         return if (existingDailyChallenge != null) {
-            val updatedDailyChallenge =
-                DailyChallenge.create(
-                    id = existingDailyChallenge.id,
-                    challengeId = challengeId,
-                    date = existingDailyChallenge.date,
-                    isActive = true,
-                )
+            existingDailyChallenge.changeChallenge(challenge)
             logger.info("기존 일일 챌린지 업데이트: id = {}, date = {}", existingDailyChallenge.id, date)
-            dailyChallengeRepositoryAdapter.save(updatedDailyChallenge)
+            dailyChallengeRepositoryAdapter.save(existingDailyChallenge)
         } else {
             val newDailyChallenge =
                 DailyChallenge.create(
-                    challengeId = challengeId,
+                    challenge = challenge,
                     date = date,
-                    isActive = true,
                 )
             logger.info("새 일일 챌린지 생성: 날짜 = {}", date)
             dailyChallengeRepositoryAdapter.save(newDailyChallenge)
@@ -169,7 +151,7 @@ class DailyChallengeService(
 
         val availableChallenges =
             allChallenges.filter { challenge ->
-                challenge.id != null && challenge.id !in recentChallengeIds
+                challenge.id !in recentChallengeIds
             }
 
         if (availableChallenges.isEmpty()) {
@@ -189,7 +171,7 @@ class DailyChallengeService(
 
         return if (randomChallenge?.id != null) {
             val today = LocalDate.now()
-            setDailyChallenge(today, randomChallenge.id as String)
+            setDailyChallenge(today, randomChallenge.id)
         } else {
             logger.error("랜덤 챌린지를 선택할 수 없습니다.")
             null
