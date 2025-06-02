@@ -23,36 +23,6 @@ class DailyChallengeService(
         endDate: LocalDate,
     ): List<DailyChallenge> = dailyChallengeRepositoryAdapter.findByDateBetween(startDate, endDate)
 
-    fun createDailyChallenge(
-        challengeId: String,
-        date: LocalDate = LocalDate.now(),
-        isActive: Boolean = true,
-    ): DailyChallenge {
-        val challenge =
-            challengeService.findById(challengeId)
-                ?: throw IllegalArgumentException("Challenge not found with ID: $challengeId")
-
-        val existingDailyChallenge = dailyChallengeRepositoryAdapter.findByDate(date)
-        if (existingDailyChallenge != null) {
-            logger.warn("Daily challenge already exists for date: $date")
-            return existingDailyChallenge
-        }
-
-        val dailyChallenge =
-            DailyChallenge.create(
-                challenge = challenge,
-                date = date,
-                isActive = isActive,
-            )
-
-        logger.info("Creating daily challenge for date: $date, challenge: ${challenge.title}")
-        return dailyChallengeRepositoryAdapter.save(dailyChallenge)
-    }
-
-    fun deleteById(id: String) {
-        dailyChallengeRepositoryAdapter.deleteById(id)
-    }
-
     fun findByDateRange(
         startDate: LocalDate,
         endDate: LocalDate,
@@ -65,11 +35,6 @@ class DailyChallengeService(
         } else {
             null
         }
-    }
-
-    fun findTodayChallenge(): Challenge? {
-        val today = LocalDate.now()
-        return findChallengeForDate(today)
     }
 
     fun save(dailyChallenge: DailyChallenge): DailyChallenge {
@@ -91,24 +56,6 @@ class DailyChallengeService(
 
         logger.info("일일 챌린지 저장 중: 챌린지 ID = {}, 날짜 = {}", dailyChallenge.challengeId, dailyChallenge.date)
         return dailyChallengeRepositoryAdapter.save(dailyChallenge)
-    }
-
-    fun update(
-        id: String,
-        updatedDailyChallenge: DailyChallenge,
-    ): DailyChallenge? {
-        val existingDailyChallenge = dailyChallengeRepositoryAdapter.findById(id).orElse(null)
-
-        return if (existingDailyChallenge != null) {
-            val challenge = challengeService.findById(updatedDailyChallenge.challengeId)
-            if (challenge == null) {
-                throw IllegalArgumentException("Challenge with ID ${updatedDailyChallenge.challengeId} does not exist")
-            }
-
-            dailyChallengeRepositoryAdapter.save(updatedDailyChallenge)
-        } else {
-            null
-        }
     }
 
     fun setDailyChallenge(
@@ -137,7 +84,19 @@ class DailyChallengeService(
         }
     }
 
-    fun selectRandomChallenge(excludeRecentDays: Int = 7): Challenge? {
+    fun setRandomDailyChallenge(excludeRecentDays: Int = 7): DailyChallenge? {
+        val randomChallenge = selectRandomChallenge(excludeRecentDays)
+
+        return if (randomChallenge?.id != null) {
+            val today = LocalDate.now()
+            setDailyChallenge(today, randomChallenge.id)
+        } else {
+            logger.error("랜덤 챌린지를 선택할 수 없습니다.")
+            null
+        }
+    }
+
+    private fun selectRandomChallenge(excludeRecentDays: Int = 7): Challenge? {
         val allChallenges = challengeService.findAll()
         if (allChallenges.isEmpty()) {
             logger.warn("사용 가능한 챌린지가 없습니다.")
@@ -164,17 +123,5 @@ class DailyChallengeService(
 
         val randomIndex = Random.nextInt(availableChallenges.size)
         return availableChallenges[randomIndex]
-    }
-
-    fun setRandomDailyChallenge(excludeRecentDays: Int = 7): DailyChallenge? {
-        val randomChallenge = selectRandomChallenge(excludeRecentDays)
-
-        return if (randomChallenge?.id != null) {
-            val today = LocalDate.now()
-            setDailyChallenge(today, randomChallenge.id)
-        } else {
-            logger.error("랜덤 챌린지를 선택할 수 없습니다.")
-            null
-        }
     }
 }
