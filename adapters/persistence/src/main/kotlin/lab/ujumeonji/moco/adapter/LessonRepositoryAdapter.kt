@@ -44,15 +44,6 @@ class LessonRepositoryAdapter(
         return lessonMapper.toDomain(savedEntity)
     }
 
-    fun deleteById(id: String) {
-        lessonRepository.deleteById(id)
-    }
-
-    fun deleteAll(lessons: List<Lesson>) {
-        val entities = lessons.map { lessonMapper.toEntity(it) }
-        lessonRepository.deleteAll(entities)
-    }
-
     private fun SectionType.toEntity(): SectionTypeEntity {
         return when (this) {
             SectionType.GAP_FILL -> SectionTypeEntity.GAP_FILL
