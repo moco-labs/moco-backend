@@ -1,7 +1,7 @@
 package lab.ujumeonji.moco.adapter
 
-import lab.ujumeonji.moco.model.User
 import lab.ujumeonji.moco.model.UserMapper
+import lab.ujumeonji.moco.model.user.User
 import lab.ujumeonji.moco.repository.UserRepository
 import org.springframework.stereotype.Component
 import java.util.Optional

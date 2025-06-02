@@ -1,6 +1,7 @@
 package lab.ujumeonji.moco.controller.auth
 
 import jakarta.validation.Valid
+import lab.ujumeonji.moco.model.user.UserService
 import lab.ujumeonji.moco.model.user.exception.AuthenticationFailedException
 import lab.ujumeonji.moco.model.user.exception.EmailAlreadyExistsException
 import lab.ujumeonji.moco.model.user.exception.PasswordMismatchException
@@ -9,7 +10,6 @@ import lab.ujumeonji.moco.model.user.io.SignInInput
 import lab.ujumeonji.moco.model.user.io.SignUpInput
 import lab.ujumeonji.moco.model.user.io.TokenOutput
 import lab.ujumeonji.moco.model.user.io.UserProfileOutput
-import lab.ujumeonji.moco.service.user.UserService
 import lab.ujumeonji.moco.support.auth.RequiredAuth
 import lab.ujumeonji.moco.support.session.TokenManager
 import org.slf4j.LoggerFactory
