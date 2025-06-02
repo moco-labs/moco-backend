@@ -1,9 +1,10 @@
 package lab.ujumeonji.moco.model.challenge
 
 import java.time.LocalDateTime
+import java.util.UUID
 
 class Challenge(
-    val id: String? = null,
+    val id: String = UUID.randomUUID().toString(),
     val title: String,
     val description: String,
     val descriptionHighlightTokens: List<HighlightToken>,

@@ -15,7 +15,7 @@ class ChallengeService(private val challengeRepositoryAdapter: ChallengeReposito
 
     fun findAll(pageable: Pageable): Page<Challenge> = challengeRepositoryAdapter.findAll(pageable)
 
-    fun findById(id: String): Challenge? = challengeRepositoryAdapter.findById(id).orElse(null)
+    fun findById(id: String): Challenge? = challengeRepositoryAdapter.findById(id)
 
     fun findByTitle(title: String): Challenge? = challengeRepositoryAdapter.findByTitle(title)
 
@@ -42,7 +42,7 @@ class ChallengeService(private val challengeRepositoryAdapter: ChallengeReposito
         id: String,
         updatedChallenge: Challenge,
     ): Challenge? {
-        val existingChallenge = challengeRepositoryAdapter.findById(id).orElse(null)
+        val existingChallenge = challengeRepositoryAdapter.findById(id)
 
         return if (existingChallenge != null) {
             val challenge =
@@ -57,7 +57,7 @@ class ChallengeService(private val challengeRepositoryAdapter: ChallengeReposito
                     content = updatedChallenge.content,
                     examples = updatedChallenge.examples,
                     constraints = updatedChallenge.constraints,
-                    createdAt = existingChallenge,
+                    createdAt = existingChallenge.createdAt,
                     updatedAt = LocalDateTime.now(),
                 )
             challengeRepositoryAdapter.save(challenge)

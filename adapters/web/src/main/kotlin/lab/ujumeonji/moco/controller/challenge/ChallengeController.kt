@@ -1,10 +1,10 @@
 package lab.ujumeonji.moco.controller.challenge
 
-import lab.ujumeonji.moco.model.Challenge
+import lab.ujumeonji.moco.model.challenge.Challenge
 import lab.ujumeonji.moco.model.challenge.ChallengeService
 import lab.ujumeonji.moco.model.challenge.ChatService
-import lab.ujumeonji.moco.model.challenge.io.ChallengeChatInput
-import lab.ujumeonji.moco.model.challenge.io.ChallengeChatOutput
+import lab.ujumeonji.moco.service.challenge.io.ChallengeChatInput
+import lab.ujumeonji.moco.service.challenge.io.ChallengeChatOutput
 import lab.ujumeonji.moco.support.auth.RequiredAuth
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl

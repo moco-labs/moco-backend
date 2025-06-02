@@ -21,7 +21,10 @@ class ChallengeRepositoryAdapter(
         return PageImpl(domainContent, pageable, entityPage.totalElements)
     }
 
-    fun findById(id: String): Challenge? = challengeRepository.findById(id).map { challengeMapper.toDomain(it) }
+    fun findById(id: String): Challenge? {
+        val entity = challengeRepository.findById(id).orElse(null)
+        return entity?.let { challengeMapper.toDomain(it) }
+    }
 
     fun findByTitle(title: String): Challenge? = challengeRepository.findByTitle(title)?.let { challengeMapper.toDomain(it) }
 
