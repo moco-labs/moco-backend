@@ -1,9 +1,9 @@
 package lab.ujumeonji.moco.adapter
 
-import lab.ujumeonji.moco.model.Lesson
 import lab.ujumeonji.moco.model.LessonMapper
-import lab.ujumeonji.moco.model.SectionType
 import lab.ujumeonji.moco.model.SectionTypeEntity
+import lab.ujumeonji.moco.model.challenge.Lesson
+import lab.ujumeonji.moco.model.challenge.SectionType
 import lab.ujumeonji.moco.repository.LessonRepository
 import org.springframework.stereotype.Component
 import java.util.Optional

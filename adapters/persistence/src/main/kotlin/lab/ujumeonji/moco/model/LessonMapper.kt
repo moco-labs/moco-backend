@@ -1,5 +1,8 @@
 package lab.ujumeonji.moco.model
 
+import lab.ujumeonji.moco.model.challenge.Lesson
+import lab.ujumeonji.moco.model.challenge.LessonSection
+import lab.ujumeonji.moco.model.challenge.SectionType
 import org.springframework.stereotype.Component
 
 @Component

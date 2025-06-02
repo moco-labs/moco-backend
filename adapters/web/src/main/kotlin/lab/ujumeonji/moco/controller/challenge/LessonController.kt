@@ -1,9 +1,9 @@
 package lab.ujumeonji.moco.controller.challenge
 
-import lab.ujumeonji.moco.model.Lesson
-import lab.ujumeonji.moco.model.LessonSection
-import lab.ujumeonji.moco.model.SectionType
+import lab.ujumeonji.moco.model.challenge.Lesson
+import lab.ujumeonji.moco.model.challenge.LessonSection
 import lab.ujumeonji.moco.model.challenge.LessonService
+import lab.ujumeonji.moco.model.challenge.SectionType
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
