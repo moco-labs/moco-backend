@@ -1,10 +1,15 @@
 package lab.ujumeonji.moco.controller.challenge
 
-import lab.ujumeonji.moco.model.challenge.Challenge
+import jakarta.validation.Valid
+import lab.ujumeonji.moco.controller.challenge.dto.ChallengeChatRequest
+import lab.ujumeonji.moco.controller.challenge.dto.ChallengeChatResponse
+import lab.ujumeonji.moco.controller.challenge.dto.ChallengeResponse
+import lab.ujumeonji.moco.controller.challenge.dto.CreateChallengeRequest
 import lab.ujumeonji.moco.model.challenge.ChallengeService
 import lab.ujumeonji.moco.model.challenge.ChatService
 import lab.ujumeonji.moco.service.challenge.io.ChallengeChatInput
 import lab.ujumeonji.moco.service.challenge.io.ChallengeChatOutput
+import lab.ujumeonji.moco.service.challenge.io.ChallengeOutput
 import lab.ujumeonji.moco.support.auth.RequiredAuth
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -35,7 +40,7 @@ class ChallengeController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(defaultValue = "createdAt,desc") sort: String,
-    ): ResponseEntity<Page<Challenge>> {
+    ): ResponseEntity<Page<ChallengeResponse>> {
         val sortParams = sort.split(",")
         val direction =
             if (sortParams.size > 1 && sortParams[1].equals("asc", ignoreCase = true)) {
@@ -47,33 +52,52 @@ class ChallengeController(
         val pageable: Pageable = PageRequest.of(page, size, Sort.by(direction, sortProperty))
 
         if (title != null) {
-            val challenge = challengeService.findByTitle(title)
-            return if (challenge != null) {
-                val singleItemPage = PageImpl(listOf(challenge), pageable, 1)
+            val challengeOutput = challengeService.findByTitleOutput(title)
+            return if (challengeOutput != null) {
+                val challengeResponse = ChallengeResponse.from(challengeOutput)
+                val singleItemPage = PageImpl(listOf(challengeResponse), pageable, 1)
                 ResponseEntity.ok(singleItemPage)
             } else {
-                ResponseEntity.ok(PageImpl(emptyList<Challenge>(), pageable, 0))
+                ResponseEntity.ok(PageImpl(emptyList<ChallengeResponse>(), pageable, 0))
             }
         }
 
         if (difficulty != null) {
-            return ResponseEntity.ok(challengeService.findByDifficulty(difficulty, pageable))
+            val outputPage = challengeService.findByDifficultyOutput(difficulty, pageable)
+            val responsePage = PageImpl(
+                outputPage.content.map { ChallengeResponse.from(it) },
+                outputPage.pageable,
+                outputPage.totalElements
+            )
+            return ResponseEntity.ok(responsePage)
         }
 
         if (tag != null) {
-            return ResponseEntity.ok(challengeService.findByTag(tag, pageable))
+            val outputPage = challengeService.findByTagOutput(tag, pageable)
+            val responsePage = PageImpl(
+                outputPage.content.map { ChallengeResponse.from(it) },
+                outputPage.pageable,
+                outputPage.totalElements
+            )
+            return ResponseEntity.ok(responsePage)
         }
 
-        return ResponseEntity.ok(challengeService.findAll(pageable))
+        val outputPage = challengeService.findAllOutput(pageable)
+        val responsePage = PageImpl(
+            outputPage.content.map { ChallengeResponse.from(it) },
+            outputPage.pageable,
+            outputPage.totalElements
+        )
+        return ResponseEntity.ok(responsePage)
     }
 
     @GetMapping("/{id}")
     fun getChallenge(
         @PathVariable id: String,
-    ): ResponseEntity<Challenge> {
-        val challenge = challengeService.findById(id)
-        return if (challenge != null) {
-            ResponseEntity.ok(challenge)
+    ): ResponseEntity<ChallengeResponse> {
+        val challengeOutput = challengeService.findByIdOutput(id)
+        return if (challengeOutput != null) {
+            ResponseEntity.ok(ChallengeResponse.from(challengeOutput))
         } else {
             ResponseEntity.notFound().build()
         }
@@ -81,20 +105,21 @@ class ChallengeController(
 
     @PostMapping
     fun createChallenge(
-        @RequestBody challenge: Challenge,
-    ): ResponseEntity<Challenge> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(challengeService.save(challenge))
+        @Valid @RequestBody request: CreateChallengeRequest,
+    ): ResponseEntity<ChallengeResponse> {
+        val challengeOutput = challengeService.saveOutput(request.toInput())
+        return ResponseEntity.status(HttpStatus.CREATED).body(ChallengeResponse.from(challengeOutput))
     }
 
     @PostMapping("/{challengeId}/chats")
     fun chatAboutChallenge(
         @RequiredAuth userId: String,
         @PathVariable challengeId: String,
-        @RequestBody request: ChallengeChatInput,
-    ): ResponseEntity<ChallengeChatOutput> {
+        @Valid @RequestBody request: ChallengeChatRequest,
+    ): ResponseEntity<ChallengeChatResponse> {
         try {
-            val response = chatService.processChat(challengeId, userId, request)
-            return ResponseEntity.ok(response)
+            val response = chatService.processChat(challengeId, userId, request.toInput())
+            return ResponseEntity.ok(ChallengeChatResponse.from(response))
         } catch (e: IllegalArgumentException) {
             return ResponseEntity.badRequest().build()
         } catch (e: Exception) {
@@ -106,10 +131,10 @@ class ChallengeController(
     fun getChatSessionsByChallenge(
         @RequiredAuth userId: String,
         @PathVariable challengeId: String,
-    ): ResponseEntity<ChallengeChatOutput> {
+    ): ResponseEntity<ChallengeChatResponse> {
         try {
             val chatSessions = chatService.getChatSessionsByChallengeAndUser(challengeId, userId)
-            return ResponseEntity.ok(chatSessions)
+            return ResponseEntity.ok(ChallengeChatResponse.from(chatSessions))
         } catch (e: IllegalArgumentException) {
             return ResponseEntity.badRequest().build()
         } catch (e: Exception) {

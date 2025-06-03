@@ -2,7 +2,12 @@ package lab.ujumeonji.moco.model.challenge
 
 import lab.ujumeonji.moco.adapter.DailyChallengeRepositoryAdapter
 import lab.ujumeonji.moco.model.DailyChallenge
+import lab.ujumeonji.moco.model.challenge.io.CreateDailyChallengeInput
+import lab.ujumeonji.moco.model.challenge.io.DailyChallengeOutput
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import kotlin.random.Random
@@ -16,17 +21,98 @@ class DailyChallengeService(
 
     fun findAll(): List<DailyChallenge> = dailyChallengeRepositoryAdapter.findAll()
 
+    fun findAllOutput(): List<DailyChallengeOutput> = findAll().map { DailyChallengeOutput.fromDomain(it) }
+
+    fun findAll(pageable: Pageable): Page<DailyChallenge> {
+        val dailyChallenges = findAll()
+        val start = pageable.offset.toInt()
+        val end = (start + pageable.pageSize).coerceAtMost(dailyChallenges.size)
+        val pageContent = if (start < end) dailyChallenges.subList(start, end) else emptyList()
+        return PageImpl(pageContent, pageable, dailyChallenges.size.toLong())
+    }
+
+    fun findAllOutput(pageable: Pageable): Page<DailyChallengeOutput> {
+        val dailyChallengePage = findAll(pageable)
+        return PageImpl(
+            dailyChallengePage.content.map { DailyChallengeOutput.fromDomain(it) },
+            dailyChallengePage.pageable,
+            dailyChallengePage.totalElements
+        )
+    }
+
     fun findById(id: String): DailyChallenge? = dailyChallengeRepositoryAdapter.findById(id).orElse(null)
+
+    fun findByIdOutput(id: String): DailyChallengeOutput? = findById(id)?.let { DailyChallengeOutput.fromDomain(it) }
 
     fun findBetweenDates(
         startDate: LocalDate,
         endDate: LocalDate,
     ): List<DailyChallenge> = dailyChallengeRepositoryAdapter.findByDateBetween(startDate, endDate)
 
+    fun findBetweenDatesOutput(
+        startDate: LocalDate,
+        endDate: LocalDate,
+    ): List<DailyChallengeOutput> = findBetweenDates(startDate, endDate).map { DailyChallengeOutput.fromDomain(it) }
+
+    fun findBetweenDates(
+        startDate: LocalDate,
+        endDate: LocalDate,
+        pageable: Pageable
+    ): Page<DailyChallenge> {
+        val dailyChallenges = findBetweenDates(startDate, endDate)
+        val start = pageable.offset.toInt()
+        val end = (start + pageable.pageSize).coerceAtMost(dailyChallenges.size)
+        val pageContent = if (start < end) dailyChallenges.subList(start, end) else emptyList()
+        return PageImpl(pageContent, pageable, dailyChallenges.size.toLong())
+    }
+
+    fun findBetweenDatesOutput(
+        startDate: LocalDate,
+        endDate: LocalDate,
+        pageable: Pageable
+    ): Page<DailyChallengeOutput> {
+        val dailyChallengePage = findBetweenDates(startDate, endDate, pageable)
+        return PageImpl(
+            dailyChallengePage.content.map { DailyChallengeOutput.fromDomain(it) },
+            dailyChallengePage.pageable,
+            dailyChallengePage.totalElements
+        )
+    }
+
     fun findByDateRange(
         startDate: LocalDate,
         endDate: LocalDate,
     ): List<DailyChallenge> = dailyChallengeRepositoryAdapter.findByDateBetween(startDate, endDate)
+
+    fun findByDateRangeOutput(
+        startDate: LocalDate,
+        endDate: LocalDate,
+    ): List<DailyChallengeOutput> = findByDateRange(startDate, endDate).map { DailyChallengeOutput.fromDomain(it) }
+
+    fun findByDateRange(
+        startDate: LocalDate,
+        endDate: LocalDate,
+        pageable: Pageable
+    ): Page<DailyChallenge> {
+        val dailyChallenges = findByDateRange(startDate, endDate)
+        val start = pageable.offset.toInt()
+        val end = (start + pageable.pageSize).coerceAtMost(dailyChallenges.size)
+        val pageContent = if (start < end) dailyChallenges.subList(start, end) else emptyList()
+        return PageImpl(pageContent, pageable, dailyChallenges.size.toLong())
+    }
+
+    fun findByDateRangeOutput(
+        startDate: LocalDate,
+        endDate: LocalDate,
+        pageable: Pageable
+    ): Page<DailyChallengeOutput> {
+        val dailyChallengePage = findByDateRange(startDate, endDate, pageable)
+        return PageImpl(
+            dailyChallengePage.content.map { DailyChallengeOutput.fromDomain(it) },
+            dailyChallengePage.pageable,
+            dailyChallengePage.totalElements
+        )
+    }
 
     fun findChallengeForDate(date: LocalDate): Challenge? {
         val dailyChallenge = dailyChallengeRepositoryAdapter.findByDate(date)
@@ -35,6 +121,32 @@ class DailyChallengeService(
         } else {
             null
         }
+    }
+
+    fun findChallengeOutputForDate(date: LocalDate): lab.ujumeonji.moco.service.challenge.io.ChallengeOutput? {
+        val challenge = findChallengeForDate(date)
+        return challenge?.let { lab.ujumeonji.moco.service.challenge.io.ChallengeOutput.fromDomain(it) }
+    }
+
+    fun save(input: CreateDailyChallengeInput): DailyChallenge {
+        val challenge = challengeService.findById(input.challengeId)
+        if (challenge == null) {
+            throw IllegalArgumentException("Challenge with ID ${input.challengeId} does not exist")
+        }
+
+        val existingDailyChallenge = dailyChallengeRepositoryAdapter.findByDate(input.date)
+        if (existingDailyChallenge != null) {
+            val updatedExisting =
+                existingDailyChallenge.copy(
+                    date = existingDailyChallenge.date,
+                    isActive = false,
+                )
+            dailyChallengeRepositoryAdapter.save(updatedExisting)
+            logger.info("Deactivating existing daily challenge: id = {}, date = {}", existingDailyChallenge.id, existingDailyChallenge.date)
+        }
+
+        logger.info("Saving daily challenge: Challenge ID = {}, Date = {}", input.challengeId, input.date)
+        return dailyChallengeRepositoryAdapter.save(input.toDomain())
     }
 
     fun save(dailyChallenge: DailyChallenge): DailyChallenge {
@@ -51,11 +163,16 @@ class DailyChallengeService(
                     isActive = false,
                 )
             dailyChallengeRepositoryAdapter.save(updatedExisting)
-            logger.info("기존 일일 챌린지 비활성화: id = {}, date = {}", existingDailyChallenge.id, existingDailyChallenge.date)
+            logger.info("Deactivating existing daily challenge: id = {}, date = {}", existingDailyChallenge.id, existingDailyChallenge.date)
         }
 
-        logger.info("일일 챌린지 저장 중: 챌린지 ID = {}, 날짜 = {}", dailyChallenge.challengeId, dailyChallenge.date)
+        logger.info("Saving daily challenge: Challenge ID = {}, Date = {}", dailyChallenge.challengeId, dailyChallenge.date)
         return dailyChallengeRepositoryAdapter.save(dailyChallenge)
+    }
+
+    fun saveOutput(input: CreateDailyChallengeInput): DailyChallengeOutput {
+        val dailyChallenge = save(input)
+        return DailyChallengeOutput.fromDomain(dailyChallenge)
     }
 
     fun setDailyChallenge(
