@@ -1,5 +1,8 @@
 package lab.ujumeonji.moco.model
 
+import lab.ujumeonji.moco.model.challenge.Challenge
+import lab.ujumeonji.moco.model.challenge.ChallengeExample
+import lab.ujumeonji.moco.model.challenge.HighlightToken
 import org.springframework.stereotype.Component
 
 @Component

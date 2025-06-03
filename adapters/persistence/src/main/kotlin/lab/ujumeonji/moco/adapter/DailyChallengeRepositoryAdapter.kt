@@ -31,26 +31,9 @@ class DailyChallengeRepositoryAdapter(
         return dailyChallengeRepository.findByDateBetween(startDate, endDate).map { dailyChallengeMapper.toDomain(it) }
     }
 
-    fun findByIsActiveTrue(): List<DailyChallenge> {
-        return dailyChallengeRepository.findByIsActiveTrue().map { dailyChallengeMapper.toDomain(it) }
-    }
-
-    fun findByChallengeId(challengeId: String): List<DailyChallenge> {
-        return dailyChallengeRepository.findByChallengeId(challengeId).map { dailyChallengeMapper.toDomain(it) }
-    }
-
     fun save(dailyChallenge: DailyChallenge): DailyChallenge {
         val entity = dailyChallengeMapper.toEntity(dailyChallenge)
         val savedEntity = dailyChallengeRepository.save(entity)
         return dailyChallengeMapper.toDomain(savedEntity)
-    }
-
-    fun deleteById(id: String) {
-        dailyChallengeRepository.deleteById(id)
-    }
-
-    fun deleteAll(dailyChallenges: List<DailyChallenge>) {
-        val entities = dailyChallenges.map { dailyChallengeMapper.toEntity(it) }
-        dailyChallengeRepository.deleteAll(entities)
     }
 }

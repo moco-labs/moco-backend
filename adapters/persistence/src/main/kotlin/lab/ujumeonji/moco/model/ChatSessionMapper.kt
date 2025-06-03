@@ -1,5 +1,7 @@
 package lab.ujumeonji.moco.model
 
+import lab.ujumeonji.moco.model.challenge.ChatSession
+import lab.ujumeonji.moco.model.challenge.Message
 import org.springframework.stereotype.Component
 
 @Component

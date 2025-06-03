@@ -13,8 +13,4 @@ interface DailyChallengeRepository : MongoRepository<DailyChallengeEntity, Strin
         startDate: LocalDate,
         endDate: LocalDate,
     ): List<DailyChallengeEntity>
-
-    fun findByIsActiveTrue(): List<DailyChallengeEntity>
-
-    fun findByChallengeId(challengeId: String): List<DailyChallengeEntity>
 }

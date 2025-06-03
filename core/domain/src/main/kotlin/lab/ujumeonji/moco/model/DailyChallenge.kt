@@ -1,23 +1,26 @@
 package lab.ujumeonji.moco.model
 
+import lab.ujumeonji.moco.model.challenge.Challenge
 import java.time.LocalDate
 
-class DailyChallenge(
+data class DailyChallenge(
     val id: String? = null,
-    val challengeId: String,
+    var challengeId: String,
     val date: LocalDate,
     val isActive: Boolean = true,
 ) {
+    fun changeChallenge(challenge: Challenge) {
+        challengeId = challenge.id
+    }
+
     companion object {
         fun create(
-            id: String? = null,
-            challengeId: String,
+            challenge: Challenge,
             date: LocalDate = LocalDate.now(),
             isActive: Boolean = true,
         ): DailyChallenge =
             DailyChallenge(
-                id = id,
-                challengeId = challengeId,
+                challengeId = challenge.id,
                 date = date,
                 isActive = isActive,
             )

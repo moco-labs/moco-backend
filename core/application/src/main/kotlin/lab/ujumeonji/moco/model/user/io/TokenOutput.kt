@@ -1,4 +1,4 @@
-package lab.ujumeonji.moco.service.user.io
+package lab.ujumeonji.moco.model.user.io
 
 data class TokenOutput(
     val success: Boolean,

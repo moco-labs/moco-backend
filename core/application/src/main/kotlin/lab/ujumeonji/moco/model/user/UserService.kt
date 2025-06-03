@@ -1,11 +1,10 @@
-package lab.ujumeonji.moco.service.user
+package lab.ujumeonji.moco.model.user
 
 import lab.ujumeonji.moco.adapter.UserRepositoryAdapter
-import lab.ujumeonji.moco.model.User
-import lab.ujumeonji.moco.service.user.exception.AuthenticationFailedException
-import lab.ujumeonji.moco.service.user.exception.EmailAlreadyExistsException
-import lab.ujumeonji.moco.service.user.io.SignInInput
-import lab.ujumeonji.moco.service.user.io.SignUpInput
+import lab.ujumeonji.moco.model.user.exception.AuthenticationFailedException
+import lab.ujumeonji.moco.model.user.exception.EmailAlreadyExistsException
+import lab.ujumeonji.moco.model.user.io.SignInInput
+import lab.ujumeonji.moco.model.user.io.SignUpInput
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service

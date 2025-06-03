@@ -1,5 +1,6 @@
 package lab.ujumeonji.moco.model
 
+import lab.ujumeonji.moco.model.user.User
 import org.springframework.stereotype.Component
 
 @Component

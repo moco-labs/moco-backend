@@ -1,17 +1,19 @@
 package lab.ujumeonji.moco.controller.challenge
 
-import lab.ujumeonji.moco.model.Lesson
-import lab.ujumeonji.moco.model.LessonSection
-import lab.ujumeonji.moco.model.SectionType
-import lab.ujumeonji.moco.service.challenge.LessonService
+import jakarta.validation.Valid
+import lab.ujumeonji.moco.controller.challenge.dto.CreateLessonRequest
+import lab.ujumeonji.moco.controller.challenge.dto.LessonResponse
+import lab.ujumeonji.moco.model.challenge.LessonService
+import lab.ujumeonji.moco.model.challenge.SectionType
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -24,104 +26,82 @@ class LessonController(private val lessonService: LessonService) {
     fun getLessons(
         @RequestParam(required = false) challengeId: String?,
         @RequestParam(required = false) sectionType: String?,
-    ): ResponseEntity<List<Lesson>> {
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "10") size: Int,
+        @RequestParam(defaultValue = "createdAt,desc") sort: String,
+    ): ResponseEntity<Page<LessonResponse>> {
+        val sortParams = sort.split(",")
+        val direction =
+            if (sortParams.size > 1 && sortParams[1].equals("asc", ignoreCase = true)) {
+                Sort.Direction.ASC
+            } else {
+                Sort.Direction.DESC
+            }
+        val sortProperty = sortParams[0]
+        val pageable: Pageable = PageRequest.of(page, size, Sort.by(direction, sortProperty))
+
         if (challengeId != null && sectionType != null) {
             try {
                 val type = SectionType.valueOf(sectionType.uppercase())
-                return ResponseEntity.ok(lessonService.findByChallengeIdAndSectionType(challengeId, type))
+                val outputPage = lessonService.findByChallengeIdAndSectionTypeOutput(challengeId, type, pageable)
+                val responsePage =
+                    PageImpl(
+                        outputPage.content.map { LessonResponse.from(it) },
+                        outputPage.pageable,
+                        outputPage.totalElements,
+                    )
+                return ResponseEntity.ok(responsePage)
             } catch (e: IllegalArgumentException) {
                 return ResponseEntity.badRequest().build()
             }
         }
 
         if (challengeId != null) {
-            return ResponseEntity.ok(lessonService.findByChallengeId(challengeId))
+            val outputPage = lessonService.findByChallengeIdOutput(challengeId, pageable)
+            val responsePage =
+                PageImpl(
+                    outputPage.content.map { LessonResponse.from(it) },
+                    outputPage.pageable,
+                    outputPage.totalElements,
+                )
+            return ResponseEntity.ok(responsePage)
         }
 
         if (sectionType != null) {
             try {
                 val type = SectionType.valueOf(sectionType.uppercase())
-                return ResponseEntity.ok(lessonService.findBySectionType(type))
+                val outputPage = lessonService.findBySectionTypeOutput(type, pageable)
+                val responsePage =
+                    PageImpl(
+                        outputPage.content.map { LessonResponse.from(it) },
+                        outputPage.pageable,
+                        outputPage.totalElements,
+                    )
+                return ResponseEntity.ok(responsePage)
             } catch (e: IllegalArgumentException) {
                 return ResponseEntity.badRequest().build()
             }
         }
 
-        return ResponseEntity.ok(lessonService.findAll())
-    }
-
-    @GetMapping("/{id}")
-    fun getLesson(
-        @PathVariable id: String,
-    ): ResponseEntity<Lesson> {
-        val lesson = lessonService.findById(id)
-        return if (lesson != null) {
-            ResponseEntity.ok(lesson)
-        } else {
-            ResponseEntity.notFound().build()
-        }
+        val outputPage = lessonService.findAllOutput(pageable)
+        val responsePage =
+            PageImpl(
+                outputPage.content.map { LessonResponse.from(it) },
+                outputPage.pageable,
+                outputPage.totalElements,
+            )
+        return ResponseEntity.ok(responsePage)
     }
 
     @PostMapping
     fun createLesson(
-        @RequestBody lesson: Lesson,
-    ): ResponseEntity<Lesson> {
+        @Valid @RequestBody request: CreateLessonRequest,
+    ): ResponseEntity<LessonResponse> {
         return try {
-            ResponseEntity.status(HttpStatus.CREATED).body(lessonService.save(lesson))
+            val output = lessonService.saveOutput(request.toInput())
+            ResponseEntity.status(HttpStatus.CREATED).body(LessonResponse.from(output))
         } catch (e: IllegalArgumentException) {
             ResponseEntity.badRequest().build()
         }
-    }
-
-    @PostMapping("/templates")
-    fun createLessonFromTemplate(
-        @RequestParam templateType: String,
-        @RequestParam challengeId: String,
-    ): ResponseEntity<Lesson> {
-        return try {
-            val lesson =
-                when (templateType.lowercase()) {
-                    "binary-search" -> lessonService.createBinarySearchLesson(challengeId)
-                    "tree-traversal" -> lessonService.createTreeTraversalLesson(challengeId)
-                    else -> return ResponseEntity.badRequest().build()
-                }
-            ResponseEntity.status(HttpStatus.CREATED).body(lesson)
-        } catch (e: IllegalArgumentException) {
-            ResponseEntity.badRequest().build()
-        }
-    }
-
-    @PutMapping("/{id}")
-    fun updateLesson(
-        @PathVariable id: String,
-        @RequestBody lesson: Lesson,
-    ): ResponseEntity<Lesson> {
-        val updatedLesson = lessonService.update(id, lesson)
-        return if (updatedLesson != null) {
-            ResponseEntity.ok(updatedLesson)
-        } else {
-            ResponseEntity.notFound().build()
-        }
-    }
-
-    @PatchMapping("/{id}/sections")
-    fun updateLessonSections(
-        @PathVariable id: String,
-        @RequestBody sections: List<LessonSection>,
-    ): ResponseEntity<Lesson> {
-        val updatedLesson = lessonService.updateSections(id, sections)
-        return if (updatedLesson != null) {
-            ResponseEntity.ok(updatedLesson)
-        } else {
-            ResponseEntity.notFound().build()
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    fun deleteLesson(
-        @PathVariable id: String,
-    ): ResponseEntity<Void> {
-        lessonService.deleteById(id)
-        return ResponseEntity.noContent().build()
     }
 }

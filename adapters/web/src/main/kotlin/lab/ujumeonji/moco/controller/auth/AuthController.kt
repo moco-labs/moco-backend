@@ -1,15 +1,18 @@
 package lab.ujumeonji.moco.controller.auth
 
 import jakarta.validation.Valid
-import lab.ujumeonji.moco.service.user.UserService
-import lab.ujumeonji.moco.service.user.exception.AuthenticationFailedException
-import lab.ujumeonji.moco.service.user.exception.EmailAlreadyExistsException
-import lab.ujumeonji.moco.service.user.exception.PasswordMismatchException
-import lab.ujumeonji.moco.service.user.io.AuthOutput
-import lab.ujumeonji.moco.service.user.io.SignInInput
-import lab.ujumeonji.moco.service.user.io.SignUpInput
-import lab.ujumeonji.moco.service.user.io.TokenOutput
-import lab.ujumeonji.moco.service.user.io.UserProfileOutput
+import lab.ujumeonji.moco.controller.auth.dto.AuthResponse
+import lab.ujumeonji.moco.controller.auth.dto.SignInRequest
+import lab.ujumeonji.moco.controller.auth.dto.SignUpRequest
+import lab.ujumeonji.moco.controller.auth.dto.TokenResponse
+import lab.ujumeonji.moco.controller.auth.dto.UserProfileResponse
+import lab.ujumeonji.moco.model.user.UserService
+import lab.ujumeonji.moco.model.user.exception.AuthenticationFailedException
+import lab.ujumeonji.moco.model.user.exception.EmailAlreadyExistsException
+import lab.ujumeonji.moco.model.user.exception.PasswordMismatchException
+import lab.ujumeonji.moco.model.user.io.AuthOutput
+import lab.ujumeonji.moco.model.user.io.TokenOutput
+import lab.ujumeonji.moco.model.user.io.UserProfileOutput
 import lab.ujumeonji.moco.support.auth.RequiredAuth
 import lab.ujumeonji.moco.support.session.TokenManager
 import org.slf4j.LoggerFactory
@@ -33,60 +36,66 @@ class AuthController(
 
     @PostMapping("/signup")
     fun signup(
-        @Valid @RequestBody request: SignUpInput,
+        @Valid @RequestBody request: SignUpRequest,
         bindingResult: BindingResult,
-    ): ResponseEntity<AuthOutput> {
+    ): ResponseEntity<AuthResponse> {
         if (bindingResult.hasErrors()) {
             val errorMessage = bindingResult.fieldErrors.joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+            val output = AuthOutput(false, errorMessage)
             return ResponseEntity
                 .badRequest()
-                .body(AuthOutput(false, errorMessage))
+                .body(AuthResponse.from(output))
         }
 
         try {
-            val user = userService.signUp(request)
+            val user = userService.signUp(request.toInput())
+
+            val output =
+                AuthOutput(
+                    success = true,
+                    message = "Registration successful",
+                    userId = user.id,
+                    email = user.email,
+                    name = user.name,
+                )
 
             return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(
-                    AuthOutput(
-                        success = true,
-                        message = "Registration successful",
-                        userId = user.id,
-                        email = user.email,
-                        name = user.name,
-                    ),
-                )
+                .body(AuthResponse.from(output))
         } catch (e: EmailAlreadyExistsException) {
+            val output = AuthOutput(false, e.message ?: "Email already exists")
             return ResponseEntity
                 .badRequest()
-                .body(AuthOutput(false, e.message ?: "Email already exists"))
+                .body(AuthResponse.from(output))
         } catch (e: PasswordMismatchException) {
+            val output = AuthOutput(false, e.message ?: "Password and confirmation don't match")
             return ResponseEntity
                 .badRequest()
-                .body(AuthOutput(false, e.message ?: "Password and confirmation don't match"))
+                .body(AuthResponse.from(output))
         } catch (e: Exception) {
             logger.error("Error during user registration", e)
+            val output = AuthOutput(false, "An unexpected error occurred")
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(AuthOutput(false, "An unexpected error occurred"))
+                .body(AuthResponse.from(output))
         }
     }
 
     @PostMapping("/signin")
     fun login(
-        @Valid @RequestBody request: SignInInput,
+        @Valid @RequestBody request: SignInRequest,
         bindingResult: BindingResult,
-    ): ResponseEntity<TokenOutput> {
+    ): ResponseEntity<TokenResponse> {
         if (bindingResult.hasErrors()) {
             val errorMessage = bindingResult.fieldErrors.joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+            val output = TokenOutput(false, errorMessage)
             return ResponseEntity
                 .badRequest()
-                .body(TokenOutput(false, errorMessage))
+                .body(TokenResponse.from(output))
         }
 
         try {
-            val user = userService.login(request)
+            val user = userService.login(request.toInput())
 
             val token =
                 jwtService.createToken(
@@ -96,7 +105,7 @@ class AuthController(
                     issuedAt = LocalDateTime.now(),
                 )
 
-            return ResponseEntity.ok(
+            val output =
                 TokenOutput(
                     success = true,
                     message = "Login successful",
@@ -104,69 +113,77 @@ class AuthController(
                     userId = user.id,
                     name = user.name,
                     email = user.email,
-                ),
-            )
+                )
+
+            return ResponseEntity.ok(TokenResponse.from(output))
         } catch (e: AuthenticationFailedException) {
+            val output = TokenOutput(false, e.message ?: "Authentication failed")
             return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(TokenOutput(false, e.message ?: "Authentication failed"))
+                .body(TokenResponse.from(output))
         } catch (e: Exception) {
             logger.error("Error during user login", e)
+            val output = TokenOutput(false, "An unexpected error occurred")
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(TokenOutput(false, "An unexpected error occurred"))
+                .body(TokenResponse.from(output))
         }
     }
 
     @GetMapping("/me")
     fun getMyProfile(
         @RequiredAuth userId: String,
-    ): ResponseEntity<UserProfileOutput> {
+    ): ResponseEntity<UserProfileResponse> {
         try {
             val user =
                 userService.findById(userId)
                     ?: return ResponseEntity
                         .status(HttpStatus.NOT_FOUND)
                         .body(
-                            UserProfileOutput(
-                                id = "",
-                                name = "",
-                                email = "",
+                            UserProfileResponse.from(
+                                UserProfileOutput(
+                                    id = "",
+                                    name = "",
+                                    email = "",
+                                ),
                             ),
                         )
 
-            return ResponseEntity.ok(
+            val output =
                 UserProfileOutput(
                     id = user.id ?: "",
                     name = user.name,
                     email = user.email,
-                ),
-            )
+                )
+
+            return ResponseEntity.ok(UserProfileResponse.from(output))
         } catch (e: Exception) {
             logger.error("Error retrieving user profile", e)
+            val output =
+                UserProfileOutput(
+                    id = "",
+                    name = "",
+                    email = "",
+                )
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(
-                    UserProfileOutput(
-                        id = "",
-                        name = "",
-                        email = "",
-                    ),
-                )
+                .body(UserProfileResponse.from(output))
         }
     }
 
     @PostMapping("/signup/google")
-    fun signupWithGoogle(): ResponseEntity<AuthOutput> {
+    fun signupWithGoogle(): ResponseEntity<AuthResponse> {
+        val output = AuthOutput(false, "Google signup not yet implemented")
         return ResponseEntity
             .status(HttpStatus.NOT_IMPLEMENTED)
-            .body(AuthOutput(false, "Google signup not yet implemented"))
+            .body(AuthResponse.from(output))
     }
 
     @PostMapping("/signup/facebook")
-    fun signupWithFacebook(): ResponseEntity<AuthOutput> {
+    fun signupWithFacebook(): ResponseEntity<AuthResponse> {
+        val output = AuthOutput(false, "Facebook signup not yet implemented")
         return ResponseEntity
             .status(HttpStatus.NOT_IMPLEMENTED)
-            .body(AuthOutput(false, "Facebook signup not yet implemented"))
+            .body(AuthResponse.from(output))
     }
 }

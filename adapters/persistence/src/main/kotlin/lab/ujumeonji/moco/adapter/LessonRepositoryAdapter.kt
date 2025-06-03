@@ -1,9 +1,9 @@
 package lab.ujumeonji.moco.adapter
 
-import lab.ujumeonji.moco.model.Lesson
 import lab.ujumeonji.moco.model.LessonMapper
-import lab.ujumeonji.moco.model.SectionType
 import lab.ujumeonji.moco.model.SectionTypeEntity
+import lab.ujumeonji.moco.model.challenge.Lesson
+import lab.ujumeonji.moco.model.challenge.SectionType
 import lab.ujumeonji.moco.repository.LessonRepository
 import org.springframework.stereotype.Component
 import java.util.Optional
@@ -42,15 +42,6 @@ class LessonRepositoryAdapter(
         val entity = lessonMapper.toEntity(lesson)
         val savedEntity = lessonRepository.save(entity)
         return lessonMapper.toDomain(savedEntity)
-    }
-
-    fun deleteById(id: String) {
-        lessonRepository.deleteById(id)
-    }
-
-    fun deleteAll(lessons: List<Lesson>) {
-        val entities = lessons.map { lessonMapper.toEntity(it) }
-        lessonRepository.deleteAll(entities)
     }
 
     private fun SectionType.toEntity(): SectionTypeEntity {

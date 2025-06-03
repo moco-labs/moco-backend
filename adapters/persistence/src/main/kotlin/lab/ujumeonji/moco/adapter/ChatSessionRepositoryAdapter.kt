@@ -1,7 +1,7 @@
 package lab.ujumeonji.moco.adapter
 
-import lab.ujumeonji.moco.model.ChatSession
 import lab.ujumeonji.moco.model.ChatSessionMapper
+import lab.ujumeonji.moco.model.challenge.ChatSession
 import lab.ujumeonji.moco.repository.ChatSessionRepository
 import org.springframework.stereotype.Component
 import java.util.Optional

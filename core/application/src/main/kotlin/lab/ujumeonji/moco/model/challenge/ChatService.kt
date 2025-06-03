@@ -1,8 +1,6 @@
-package lab.ujumeonji.moco.service.challenge
+package lab.ujumeonji.moco.model.challenge
 
 import lab.ujumeonji.moco.adapter.ChatSessionRepositoryAdapter
-import lab.ujumeonji.moco.model.ChatSession
-import lab.ujumeonji.moco.model.Message
 import lab.ujumeonji.moco.service.challenge.io.ChallengeChatInput
 import lab.ujumeonji.moco.service.challenge.io.ChallengeChatOutput
 import org.slf4j.LoggerFactory
@@ -37,7 +35,7 @@ class ChatService(
                 userId = userId,
             )
 
-        if (session.interactionCount >= session.maxInteractions) {
+        if (session.isMaxInteractionsReached) {
             throw IllegalArgumentException("Maximum interactions reached for this session")
         }
 
@@ -58,7 +56,7 @@ class ChatService(
                 userId = session.userId,
                 messages = session.messages,
                 understandingScore =
-                    if (session.interactionCount + 1 >= session.maxInteractions) {
+                    if (session.isLastInteraction) {
                         calculateUnderstandingScore(session)
                     } else {
                         session.understandingScore
