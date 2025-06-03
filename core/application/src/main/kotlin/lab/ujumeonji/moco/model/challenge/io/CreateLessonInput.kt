@@ -17,13 +17,14 @@ data class CreateLessonInput(
     internal fun toDomain(): Lesson {
         return Lesson(
             challengeId = challengeId,
-            sections = sections.map { 
-                LessonSection(
-                    title = it.title,
-                    type = it.type,
-                    data = it.data
-                )
-            }
+            sections =
+                sections.map {
+                    LessonSection(
+                        title = it.title,
+                        type = it.type,
+                        data = it.data,
+                    )
+                },
         )
     }
 }

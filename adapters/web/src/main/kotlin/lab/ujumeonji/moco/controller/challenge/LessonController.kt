@@ -44,11 +44,12 @@ class LessonController(private val lessonService: LessonService) {
             try {
                 val type = SectionType.valueOf(sectionType.uppercase())
                 val outputPage = lessonService.findByChallengeIdAndSectionTypeOutput(challengeId, type, pageable)
-                val responsePage = PageImpl(
-                    outputPage.content.map { LessonResponse.from(it) },
-                    outputPage.pageable,
-                    outputPage.totalElements
-                )
+                val responsePage =
+                    PageImpl(
+                        outputPage.content.map { LessonResponse.from(it) },
+                        outputPage.pageable,
+                        outputPage.totalElements,
+                    )
                 return ResponseEntity.ok(responsePage)
             } catch (e: IllegalArgumentException) {
                 return ResponseEntity.badRequest().build()
@@ -57,11 +58,12 @@ class LessonController(private val lessonService: LessonService) {
 
         if (challengeId != null) {
             val outputPage = lessonService.findByChallengeIdOutput(challengeId, pageable)
-            val responsePage = PageImpl(
-                outputPage.content.map { LessonResponse.from(it) },
-                outputPage.pageable,
-                outputPage.totalElements
-            )
+            val responsePage =
+                PageImpl(
+                    outputPage.content.map { LessonResponse.from(it) },
+                    outputPage.pageable,
+                    outputPage.totalElements,
+                )
             return ResponseEntity.ok(responsePage)
         }
 
@@ -69,11 +71,12 @@ class LessonController(private val lessonService: LessonService) {
             try {
                 val type = SectionType.valueOf(sectionType.uppercase())
                 val outputPage = lessonService.findBySectionTypeOutput(type, pageable)
-                val responsePage = PageImpl(
-                    outputPage.content.map { LessonResponse.from(it) },
-                    outputPage.pageable,
-                    outputPage.totalElements
-                )
+                val responsePage =
+                    PageImpl(
+                        outputPage.content.map { LessonResponse.from(it) },
+                        outputPage.pageable,
+                        outputPage.totalElements,
+                    )
                 return ResponseEntity.ok(responsePage)
             } catch (e: IllegalArgumentException) {
                 return ResponseEntity.badRequest().build()
@@ -81,11 +84,12 @@ class LessonController(private val lessonService: LessonService) {
         }
 
         val outputPage = lessonService.findAllOutput(pageable)
-        val responsePage = PageImpl(
-            outputPage.content.map { LessonResponse.from(it) },
-            outputPage.pageable,
-            outputPage.totalElements
-        )
+        val responsePage =
+            PageImpl(
+                outputPage.content.map { LessonResponse.from(it) },
+                outputPage.pageable,
+                outputPage.totalElements,
+            )
         return ResponseEntity.ok(responsePage)
     }
 

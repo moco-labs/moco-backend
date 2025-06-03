@@ -9,7 +9,7 @@ data class ChallengeChatRequest(
 ) {
     fun toInput(): ChallengeChatInput {
         return ChallengeChatInput(
-            message = message
+            message = message,
         )
     }
 }

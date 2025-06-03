@@ -45,19 +45,21 @@ class DailyChallengeController(private val dailyChallengeService: DailyChallenge
 
         if (startDate != null && endDate != null) {
             val outputPage = dailyChallengeService.findByDateRangeOutput(startDate, endDate, pageable)
-            val responsePage = PageImpl(
-                outputPage.content.map { DailyChallengeResponse.from(it) },
-                outputPage.pageable,
-                outputPage.totalElements
-            )
+            val responsePage =
+                PageImpl(
+                    outputPage.content.map { DailyChallengeResponse.from(it) },
+                    outputPage.pageable,
+                    outputPage.totalElements,
+                )
             return ResponseEntity.ok(responsePage)
         } else {
             val outputPage = dailyChallengeService.findAllOutput(pageable)
-            val responsePage = PageImpl(
-                outputPage.content.map { DailyChallengeResponse.from(it) },
-                outputPage.pageable,
-                outputPage.totalElements
-            )
+            val responsePage =
+                PageImpl(
+                    outputPage.content.map { DailyChallengeResponse.from(it) },
+                    outputPage.pageable,
+                    outputPage.totalElements,
+                )
             return ResponseEntity.ok(responsePage)
         }
     }

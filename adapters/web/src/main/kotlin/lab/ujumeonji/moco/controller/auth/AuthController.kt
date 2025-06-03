@@ -50,13 +50,14 @@ class AuthController(
         try {
             val user = userService.signUp(request.toInput())
 
-            val output = AuthOutput(
-                success = true,
-                message = "Registration successful",
-                userId = user.id,
-                email = user.email,
-                name = user.name,
-            )
+            val output =
+                AuthOutput(
+                    success = true,
+                    message = "Registration successful",
+                    userId = user.id,
+                    email = user.email,
+                    name = user.name,
+                )
 
             return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -104,14 +105,15 @@ class AuthController(
                     issuedAt = LocalDateTime.now(),
                 )
 
-            val output = TokenOutput(
-                success = true,
-                message = "Login successful",
-                accessToken = token,
-                userId = user.id,
-                name = user.name,
-                email = user.email,
-            )
+            val output =
+                TokenOutput(
+                    success = true,
+                    message = "Login successful",
+                    accessToken = token,
+                    userId = user.id,
+                    name = user.name,
+                    email = user.email,
+                )
 
             return ResponseEntity.ok(TokenResponse.from(output))
         } catch (e: AuthenticationFailedException) {
@@ -143,24 +145,26 @@ class AuthController(
                                     id = "",
                                     name = "",
                                     email = "",
-                                )
-                            )
+                                ),
+                            ),
                         )
 
-            val output = UserProfileOutput(
-                id = user.id ?: "",
-                name = user.name,
-                email = user.email,
-            )
+            val output =
+                UserProfileOutput(
+                    id = user.id ?: "",
+                    name = user.name,
+                    email = user.email,
+                )
 
             return ResponseEntity.ok(UserProfileResponse.from(output))
         } catch (e: Exception) {
             logger.error("Error retrieving user profile", e)
-            val output = UserProfileOutput(
-                id = "",
-                name = "",
-                email = "",
-            )
+            val output =
+                UserProfileOutput(
+                    id = "",
+                    name = "",
+                    email = "",
+                )
             return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(UserProfileResponse.from(output))

@@ -7,9 +7,6 @@ import lab.ujumeonji.moco.controller.challenge.dto.ChallengeResponse
 import lab.ujumeonji.moco.controller.challenge.dto.CreateChallengeRequest
 import lab.ujumeonji.moco.model.challenge.ChallengeService
 import lab.ujumeonji.moco.model.challenge.ChatService
-import lab.ujumeonji.moco.service.challenge.io.ChallengeChatInput
-import lab.ujumeonji.moco.service.challenge.io.ChallengeChatOutput
-import lab.ujumeonji.moco.service.challenge.io.ChallengeOutput
 import lab.ujumeonji.moco.support.auth.RequiredAuth
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -64,30 +61,33 @@ class ChallengeController(
 
         if (difficulty != null) {
             val outputPage = challengeService.findByDifficultyOutput(difficulty, pageable)
-            val responsePage = PageImpl(
-                outputPage.content.map { ChallengeResponse.from(it) },
-                outputPage.pageable,
-                outputPage.totalElements
-            )
+            val responsePage =
+                PageImpl(
+                    outputPage.content.map { ChallengeResponse.from(it) },
+                    outputPage.pageable,
+                    outputPage.totalElements,
+                )
             return ResponseEntity.ok(responsePage)
         }
 
         if (tag != null) {
             val outputPage = challengeService.findByTagOutput(tag, pageable)
-            val responsePage = PageImpl(
-                outputPage.content.map { ChallengeResponse.from(it) },
-                outputPage.pageable,
-                outputPage.totalElements
-            )
+            val responsePage =
+                PageImpl(
+                    outputPage.content.map { ChallengeResponse.from(it) },
+                    outputPage.pageable,
+                    outputPage.totalElements,
+                )
             return ResponseEntity.ok(responsePage)
         }
 
         val outputPage = challengeService.findAllOutput(pageable)
-        val responsePage = PageImpl(
-            outputPage.content.map { ChallengeResponse.from(it) },
-            outputPage.pageable,
-            outputPage.totalElements
-        )
+        val responsePage =
+            PageImpl(
+                outputPage.content.map { ChallengeResponse.from(it) },
+                outputPage.pageable,
+                outputPage.totalElements,
+            )
         return ResponseEntity.ok(responsePage)
     }
 

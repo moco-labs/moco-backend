@@ -8,11 +8,9 @@ import lab.ujumeonji.moco.model.user.io.SignUpInput
 data class SignUpRequest(
     @field:NotBlank(message = "Name is required")
     val name: String,
-
     @field:NotBlank(message = "Email is required")
     @field:Email(message = "Invalid email format")
     val email: String,
-
     @field:NotBlank(message = "Password is required")
     @field:Size(min = 6, message = "Password must be at least 6 characters")
     val password: String,
@@ -21,7 +19,7 @@ data class SignUpRequest(
         return SignUpInput(
             name = name,
             email = email,
-            password = password
+            password = password,
         )
     }
 }

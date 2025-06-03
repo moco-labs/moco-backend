@@ -15,7 +15,7 @@ data class DailyChallengeOutput(
                 id = dailyChallenge.id,
                 challengeId = dailyChallenge.challengeId,
                 date = dailyChallenge.date,
-                isActive = dailyChallenge.isActive
+                isActive = dailyChallenge.isActive,
             )
         }
     }

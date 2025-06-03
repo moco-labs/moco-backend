@@ -18,7 +18,7 @@ data class TokenResponse(
                 accessToken = output.accessToken,
                 userId = output.userId,
                 name = output.name,
-                email = output.email
+                email = output.email,
             )
         }
     }

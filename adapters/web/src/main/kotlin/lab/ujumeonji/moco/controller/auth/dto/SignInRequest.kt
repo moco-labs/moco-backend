@@ -8,14 +8,13 @@ data class SignInRequest(
     @field:NotBlank(message = "Email is required")
     @field:Email(message = "Invalid email format")
     val email: String,
-    
     @field:NotBlank(message = "Password is required")
     val password: String,
 ) {
     fun toInput(): SignInInput {
         return SignInInput(
             email = email,
-            password = password
+            password = password,
         )
     }
 }

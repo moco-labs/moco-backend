@@ -1,7 +1,6 @@
 package lab.ujumeonji.moco.model.challenge.io
 
 import lab.ujumeonji.moco.model.challenge.Lesson
-import lab.ujumeonji.moco.model.challenge.LessonSection
 import lab.ujumeonji.moco.model.challenge.SectionType
 import java.time.LocalDateTime
 
@@ -23,15 +22,16 @@ data class LessonOutput(
             return LessonOutput(
                 id = lesson.id,
                 challengeId = lesson.challengeId,
-                sections = lesson.sections.map { 
-                    LessonSectionOutput(
-                        title = it.title,
-                        type = it.type,
-                        data = it.data
-                    )
-                },
+                sections =
+                    lesson.sections.map {
+                        LessonSectionOutput(
+                            title = it.title,
+                            type = it.type,
+                            data = it.data,
+                        )
+                    },
                 createdAt = lesson.createdAt,
-                updatedAt = lesson.updatedAt
+                updatedAt = lesson.updatedAt,
             )
         }
     }

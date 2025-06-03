@@ -12,7 +12,7 @@ data class UserProfileResponse(
             return UserProfileResponse(
                 id = output.id,
                 name = output.name,
-                email = output.email
+                email = output.email,
             )
         }
     }

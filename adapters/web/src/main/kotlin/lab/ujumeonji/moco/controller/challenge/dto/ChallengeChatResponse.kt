@@ -25,17 +25,18 @@ data class ChallengeChatResponse(
                 sessionId = output.sessionId,
                 challengeId = output.challengeId,
                 userId = output.userId,
-                messages = output.messages.map { 
-                    ChatMessageResponse(
-                        content = it.content,
-                        sender = it.sender,
-                        timestamp = it.timestamp
-                    )
-                },
+                messages =
+                    output.messages.map {
+                        ChatMessageResponse(
+                            content = it.content,
+                            sender = it.sender,
+                            timestamp = it.timestamp,
+                        )
+                    },
                 understandingScore = output.understandingScore,
                 remainingInteractions = output.remainingInteractions,
                 createdAt = output.createdAt,
-                updatedAt = output.updatedAt
+                updatedAt = output.updatedAt,
             )
         }
     }

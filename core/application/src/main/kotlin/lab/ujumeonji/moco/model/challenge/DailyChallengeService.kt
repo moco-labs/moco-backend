@@ -36,7 +36,7 @@ class DailyChallengeService(
         return PageImpl(
             dailyChallengePage.content.map { DailyChallengeOutput.fromDomain(it) },
             dailyChallengePage.pageable,
-            dailyChallengePage.totalElements
+            dailyChallengePage.totalElements,
         )
     }
 
@@ -57,7 +57,7 @@ class DailyChallengeService(
     fun findBetweenDates(
         startDate: LocalDate,
         endDate: LocalDate,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<DailyChallenge> {
         val dailyChallenges = findBetweenDates(startDate, endDate)
         val start = pageable.offset.toInt()
@@ -69,13 +69,13 @@ class DailyChallengeService(
     fun findBetweenDatesOutput(
         startDate: LocalDate,
         endDate: LocalDate,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<DailyChallengeOutput> {
         val dailyChallengePage = findBetweenDates(startDate, endDate, pageable)
         return PageImpl(
             dailyChallengePage.content.map { DailyChallengeOutput.fromDomain(it) },
             dailyChallengePage.pageable,
-            dailyChallengePage.totalElements
+            dailyChallengePage.totalElements,
         )
     }
 
@@ -92,7 +92,7 @@ class DailyChallengeService(
     fun findByDateRange(
         startDate: LocalDate,
         endDate: LocalDate,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<DailyChallenge> {
         val dailyChallenges = findByDateRange(startDate, endDate)
         val start = pageable.offset.toInt()
@@ -104,13 +104,13 @@ class DailyChallengeService(
     fun findByDateRangeOutput(
         startDate: LocalDate,
         endDate: LocalDate,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<DailyChallengeOutput> {
         val dailyChallengePage = findByDateRange(startDate, endDate, pageable)
         return PageImpl(
             dailyChallengePage.content.map { DailyChallengeOutput.fromDomain(it) },
             dailyChallengePage.pageable,
-            dailyChallengePage.totalElements
+            dailyChallengePage.totalElements,
         )
     }
 

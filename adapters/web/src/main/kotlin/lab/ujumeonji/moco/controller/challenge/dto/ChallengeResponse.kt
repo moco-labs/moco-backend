@@ -34,26 +34,28 @@ data class ChallengeResponse(
                 id = output.id,
                 title = output.title,
                 description = output.description,
-                descriptionHighlightTokens = output.descriptionHighlightTokens.map { 
-                    HighlightTokenResponse(
-                        token = it.token,
-                        isHighlighted = it.isHighlighted
-                    )
-                },
+                descriptionHighlightTokens =
+                    output.descriptionHighlightTokens.map {
+                        HighlightTokenResponse(
+                            token = it.token,
+                            isHighlighted = it.isHighlighted,
+                        )
+                    },
                 instructions = output.instructions,
                 difficulty = output.difficulty,
                 tags = output.tags,
                 content = output.content,
-                examples = output.examples.map { 
-                    ChallengeExampleResponse(
-                        input = it.input,
-                        output = it.output,
-                        explanation = it.explanation
-                    )
-                },
+                examples =
+                    output.examples.map {
+                        ChallengeExampleResponse(
+                            input = it.input,
+                            output = it.output,
+                            explanation = it.explanation,
+                        )
+                    },
                 constraints = output.constraints,
                 createdAt = output.createdAt,
-                updatedAt = output.updatedAt
+                updatedAt = output.updatedAt,
             )
         }
     }

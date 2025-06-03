@@ -12,7 +12,7 @@ data class CreateDailyChallengeInput(
         return DailyChallenge(
             challengeId = challengeId,
             date = date,
-            isActive = isActive
+            isActive = isActive,
         )
     }
 }

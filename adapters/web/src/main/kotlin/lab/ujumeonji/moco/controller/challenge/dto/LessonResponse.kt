@@ -22,15 +22,16 @@ data class LessonResponse(
             return LessonResponse(
                 id = output.id,
                 challengeId = output.challengeId,
-                sections = output.sections.map { 
-                    LessonSectionResponse(
-                        title = it.title,
-                        type = it.type,
-                        data = it.data
-                    )
-                },
+                sections =
+                    output.sections.map {
+                        LessonSectionResponse(
+                            title = it.title,
+                            type = it.type,
+                            data = it.data,
+                        )
+                    },
                 createdAt = output.createdAt,
-                updatedAt = output.updatedAt
+                updatedAt = output.updatedAt,
             )
         }
     }

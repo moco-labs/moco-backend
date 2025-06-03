@@ -16,7 +16,7 @@ data class AuthResponse(
                 message = output.message,
                 userId = output.userId,
                 email = output.email,
-                name = output.name
+                name = output.name,
             )
         }
     }
