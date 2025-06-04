@@ -5,22 +5,20 @@ import lab.ujumeonji.moco.controller.challenge.dto.ChallengeChatRequest
 import lab.ujumeonji.moco.controller.challenge.dto.ChallengeChatResponse
 import lab.ujumeonji.moco.controller.challenge.dto.ChallengeResponse
 import lab.ujumeonji.moco.controller.challenge.dto.CreateChallengeRequest
+import lab.ujumeonji.moco.controller.challenge.dto.GetChallengesRequest
 import lab.ujumeonji.moco.model.challenge.ChallengeService
 import lab.ujumeonji.moco.model.challenge.ChatService
 import lab.ujumeonji.moco.support.auth.RequiredAuth
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -31,25 +29,12 @@ class ChallengeController(
 ) {
     @GetMapping
     fun getChallenges(
-        @RequestParam(required = false) title: String?,
-        @RequestParam(required = false) difficulty: String?,
-        @RequestParam(required = false) tag: String?,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int,
-        @RequestParam(defaultValue = "createdAt,desc") sort: String,
+        @ModelAttribute @Valid request: GetChallengesRequest,
     ): ResponseEntity<Page<ChallengeResponse>> {
-        val sortParams = sort.split(",")
-        val direction =
-            if (sortParams.size > 1 && sortParams[1].equals("asc", ignoreCase = true)) {
-                Sort.Direction.ASC
-            } else {
-                Sort.Direction.DESC
-            }
-        val sortProperty = sortParams[0]
-        val pageable: Pageable = PageRequest.of(page, size, Sort.by(direction, sortProperty))
+        val pageable = request.toPageable()
 
-        if (title != null) {
-            val challengeOutput = challengeService.findByTitleOutput(title)
+        if (request.title != null) {
+            val challengeOutput = challengeService.findByTitleOutput(request.title)
             return if (challengeOutput != null) {
                 val challengeResponse = ChallengeResponse.from(challengeOutput)
                 val singleItemPage = PageImpl(listOf(challengeResponse), pageable, 1)
@@ -59,8 +44,8 @@ class ChallengeController(
             }
         }
 
-        if (difficulty != null) {
-            val outputPage = challengeService.findByDifficultyOutput(difficulty, pageable)
+        if (request.difficulty != null) {
+            val outputPage = challengeService.findByDifficultyOutput(request.difficulty, pageable)
             val responsePage =
                 PageImpl(
                     outputPage.content.map { ChallengeResponse.from(it) },
@@ -70,8 +55,8 @@ class ChallengeController(
             return ResponseEntity.ok(responsePage)
         }
 
-        if (tag != null) {
-            val outputPage = challengeService.findByTagOutput(tag, pageable)
+        if (request.tag != null) {
+            val outputPage = challengeService.findByTagOutput(request.tag, pageable)
             val responsePage =
                 PageImpl(
                     outputPage.content.map { ChallengeResponse.from(it) },
