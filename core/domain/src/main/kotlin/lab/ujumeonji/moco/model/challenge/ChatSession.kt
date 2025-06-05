@@ -25,7 +25,10 @@ class ChatSession(
     val remainingInteractions: Int
         get() = maxInteractions - interactionCount
 
-    fun addUserMessage(content: String) {
+    fun addUserMessage(
+        content: String,
+        now: LocalDateTime = LocalDateTime.now(),
+    ) {
         check(remainingInteractions > 0) {
             "Maximum interactions reached for this session"
         }
@@ -36,15 +39,20 @@ class ChatSession(
             Message(
                 content = content,
                 sender = "user",
+                timestamp = now,
             ),
         )
     }
 
-    fun addSystemMessage(content: String) {
+    fun addSystemMessage(
+        content: String,
+        now: LocalDateTime = LocalDateTime.now(),
+    ) {
         messages.add(
             Message(
                 content = content,
                 sender = "assistant",
+                timestamp = now,
             ),
         )
     }

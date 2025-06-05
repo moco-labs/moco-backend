@@ -36,10 +36,11 @@ class ChatService(
 
         val session = chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId) ?: ChatSession.create(user, challenge)
 
-        session.addUserMessage(request.message)
+        val now = LocalDateTime.now()
+        session.addUserMessage(request.message, now)
 
         val systemAnswer = getAnswer(session, challenge.title, challenge.description)
-        session.addSystemMessage(systemAnswer)
+        session.addSystemMessage(systemAnswer, now)
 
         if (session.isLastInteraction) {
             session.understandingScore = understandingScoreCalculator.calculateScore(session.messages)
