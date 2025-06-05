@@ -1,9 +1,10 @@
 package lab.ujumeonji.moco.model.user
 
 import java.time.LocalDateTime
+import java.util.UUID
 
 class User(
-    val id: String? = null,
+    val id: String = UUID.randomUUID().toString(),
     val name: String,
     val email: String,
     val password: String,
