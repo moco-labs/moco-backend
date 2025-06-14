@@ -45,6 +45,9 @@ spec:
                 script {
                     echo "Running with profile: ${params.APP_PROFILE}"
                     echo "Deployment will be performed: ${params.PERFORM_DEPLOYMENT}"
+                    echo "Current branch: ${env.BRANCH_NAME}"
+                    echo "PERFORM_DEPLOYMENT type: ${params.PERFORM_DEPLOYMENT.getClass()}"
+                    echo "Branch condition check: ${env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop'}"
                 }
             }
         }
@@ -92,13 +95,25 @@ spec:
             }
         }
 
+        stage('Check Deploy Conditions') {
+            steps {
+                script {
+                    echo "=== Deploy Condition Check ==="
+                    echo "PERFORM_DEPLOYMENT: ${params.PERFORM_DEPLOYMENT}"
+                    echo "Current Branch: ${env.BRANCH_NAME}"
+                    echo "Branch matches main: ${env.BRANCH_NAME == 'main'}"
+                    echo "Branch matches develop: ${env.BRANCH_NAME == 'develop'}"
+                    
+                    def shouldDeploy = params.PERFORM_DEPLOYMENT == true && 
+                                     (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'develop')
+                    echo "Should deploy: ${shouldDeploy}"
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             when {
                 expression { params.PERFORM_DEPLOYMENT == true }
-                anyOf {
-                    branch 'main'
-                    branch 'develop'
-                }
             }
             stages {
                 stage('Approve Production Deploy') {
