@@ -114,7 +114,6 @@ spec:
                         container('gradle') {
                             withCredentials([usernamePassword(credentialsId: 'git-credential', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                                 sh """
-                                    rm -rf deploy-repo
                                     git clone https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/moco-labs/moco-chart.git deploy-repo
                                     cd deploy-repo
                                     sed -i 's/tag: ".*"/tag: "${VERSION}"/g' infrastructure/helm-charts/applications/backend/values.yaml
@@ -134,8 +133,7 @@ spec:
 
     post {
         always {
-            echo 'Pipeline finished. Cleaning up workspace.'
-            deleteDir()
+            echo 'Pipeline finished.'
         }
         success {
             echo 'Pipeline succeeded!'
