@@ -51,7 +51,7 @@ jib {
         }
     }
     container {
-        mainClass = "lab.ujumeonji.moco.MocoApiApplication"
+        mainClass = "lab.ujumeonji.moco.MocoApiApplicationKt"
         jvmFlags = listOf(
             "-Xms1024m",
             "-Xmx1024m",
