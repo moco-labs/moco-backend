@@ -7,7 +7,7 @@ kind: Pod
 spec:
   containers:
   - name: gradle
-    image: gradle:8.11.1-jdk21-jammy
+    image: gradle:8.14.2-jdk21-corretto
     command:
     - cat
     tty: true
