@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":adapters:ai"))
 
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")

@@ -14,6 +14,9 @@ class WebConfig(
     private val authArgumentResolver: AuthArgumentResolver,
 ) : WebMvcConfigurer {
     override fun addInterceptors(registry: InterceptorRegistry) {
+        authInterceptor.addAuthNotRequiredCondition(
+            "/actuator/**",
+        )
         registry.addInterceptor(authInterceptor)
     }
 
