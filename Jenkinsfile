@@ -146,8 +146,8 @@ spec:
                                     git clone https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/moco-labs/moco-chart.git deploy-repo
                                     cd deploy-repo
                                     sed -i 's/tag: ".*"/tag: "${VERSION}"/g' infrastructure/helm-charts/applications/backend/values-prod.yaml
-                                    git config --global user.email "404err@naver.com" 
-                                    git config --global user.name "moco-labs"
+                                    git config --global user.email "me@mooowu.xyz" 
+                                    git config --global user.name "moco-ci"
                                     git add infrastructure/helm-charts/applications/backend/values-prod.yaml
                                     git commit -m "update moco-backend version to ${VERSION}"
                                     git push origin main
