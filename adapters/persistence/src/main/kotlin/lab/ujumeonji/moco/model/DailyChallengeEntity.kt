@@ -1,12 +1,10 @@
 package lab.ujumeonji.moco.model
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.TypeAlias
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDate
 
 @Document(collection = "daily_challenges")
-@TypeAlias("DailyChallengeEntity")
 data class DailyChallengeEntity(
     @Id
     val id: String? = null,

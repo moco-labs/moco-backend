@@ -1,12 +1,10 @@
 package lab.ujumeonji.moco.model
 
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.TypeAlias
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.LocalDateTime
 
 @Document(collection = "chat_sessions")
-@TypeAlias("ChatSession")
 data class ChatSessionEntity(
     @Id
     val id: String? = null,
