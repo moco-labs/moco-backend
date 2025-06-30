@@ -19,7 +19,10 @@ class AuthInterceptor(
         authNotRequiredConditions.addAll(conditions)
     }
 
-    fun addAuthNotRequiredCondition(uriPattern: String, vararg httpMethods: HttpMethod) {
+    fun addAuthNotRequiredCondition(
+        uriPattern: String,
+        vararg httpMethods: HttpMethod,
+    ) {
         authNotRequiredConditions.add(UriAndMethodsCondition(uriPattern, httpMethods.toSet()))
     }
 
