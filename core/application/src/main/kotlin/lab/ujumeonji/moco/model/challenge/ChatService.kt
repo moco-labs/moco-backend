@@ -6,7 +6,7 @@ import lab.ujumeonji.moco.service.challenge.io.ChallengeChatInput
 import lab.ujumeonji.moco.service.challenge.io.ChallengeChatOutput
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
-import org.springframework.ai.chat.messages.SystemMessage
+import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.prompt.Prompt
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -76,7 +76,7 @@ class ChatService(
             """.trimIndent()
 
         try {
-            val prompt = Prompt(listOf(SystemMessage(systemPrompt)))
+            val prompt = Prompt(listOf(UserMessage(systemPrompt)))
             val aiResponse = chatClient.prompt(prompt).call()
             return aiResponse.content() ?: "죄송합니다. 응답을 생성할 수 없습니다."
         } catch (e: Exception) {
@@ -152,7 +152,7 @@ class ChatService(
                     """.trimIndent()
 
                 try {
-                    val prompt = Prompt(listOf(SystemMessage(scoringPromptText)))
+                    val prompt = Prompt(listOf(UserMessage(scoringPromptText)))
                     val aiResponse = chatClient.prompt(prompt).call()
                     val scoreText = aiResponse.content()?.trim() ?: "0"
 
