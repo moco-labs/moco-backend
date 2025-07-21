@@ -29,7 +29,7 @@ class LessonController(private val lessonService: LessonService) {
         if (request.challengeId != null && request.sectionType != null) {
             try {
                 val type = SectionType.valueOf(request.sectionType.uppercase())
-                val outputPage = lessonService.findByChallengeIdAndSectionTypeOutput(request.challengeId, type, pageable)
+                val outputPage = lessonService.findByChallengeIdAndSectionType(request.challengeId, type, pageable)
                 val responsePage =
                     PageImpl(
                         outputPage.content.map { LessonResponse.from(it) },
@@ -43,7 +43,7 @@ class LessonController(private val lessonService: LessonService) {
         }
 
         if (request.challengeId != null) {
-            val outputPage = lessonService.findByChallengeIdOutput(request.challengeId, pageable)
+            val outputPage = lessonService.findByChallengeId(request.challengeId, pageable)
             val responsePage =
                 PageImpl(
                     outputPage.content.map { LessonResponse.from(it) },
@@ -56,7 +56,7 @@ class LessonController(private val lessonService: LessonService) {
         if (request.sectionType != null) {
             try {
                 val type = SectionType.valueOf(request.sectionType.uppercase())
-                val outputPage = lessonService.findBySectionTypeOutput(type, pageable)
+                val outputPage = lessonService.findBySectionType(type, pageable)
                 val responsePage =
                     PageImpl(
                         outputPage.content.map { LessonResponse.from(it) },
@@ -69,7 +69,7 @@ class LessonController(private val lessonService: LessonService) {
             }
         }
 
-        val outputPage = lessonService.findAllOutput(pageable)
+        val outputPage = lessonService.findAll(pageable)
         val responsePage =
             PageImpl(
                 outputPage.content.map { LessonResponse.from(it) },

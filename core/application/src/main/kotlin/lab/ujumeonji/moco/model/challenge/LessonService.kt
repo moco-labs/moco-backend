@@ -5,7 +5,6 @@ import lab.ujumeonji.moco.model.challenge.io.CreateLessonInput
 import lab.ujumeonji.moco.model.challenge.io.LessonOutput
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
@@ -16,99 +15,26 @@ class LessonService(
 ) {
     private val logger = LoggerFactory.getLogger(LessonService::class.java)
 
-    fun findAll(): List<Lesson> = lessonRepositoryAdapter.findAll()
-
-    fun findAll(pageable: Pageable): Page<Lesson> {
-        val lessons = findAll()
-        val start = pageable.offset.toInt()
-        val end = (start + pageable.pageSize).coerceAtMost(lessons.size)
-        val pageContent = if (start < end) lessons.subList(start, end) else emptyList()
-        return PageImpl(pageContent, pageable, lessons.size.toLong())
-    }
-
-    fun findAllOutput(pageable: Pageable): Page<LessonOutput> {
-        val lessonPage = findAll(pageable)
-        return PageImpl(
-            lessonPage.content.map { LessonOutput.fromDomain(it) },
-            lessonPage.pageable,
-            lessonPage.totalElements,
-        )
-    }
-
-    fun findByChallengeId(challengeId: String): List<Lesson> = lessonRepositoryAdapter.findByChallengeId(challengeId)
+    fun findAll(pageable: Pageable): Page<LessonOutput> = lessonRepositoryAdapter.findAll(pageable).map(LessonOutput::fromDomain)
 
     fun findByChallengeId(
         challengeId: String,
         pageable: Pageable,
-    ): Page<Lesson> {
-        val lessons = findByChallengeId(challengeId)
-        val start = pageable.offset.toInt()
-        val end = (start + pageable.pageSize).coerceAtMost(lessons.size)
-        val pageContent = if (start < end) lessons.subList(start, end) else emptyList()
-        return PageImpl(pageContent, pageable, lessons.size.toLong())
-    }
-
-    fun findByChallengeIdOutput(
-        challengeId: String,
-        pageable: Pageable,
-    ): Page<LessonOutput> {
-        val lessonPage = findByChallengeId(challengeId, pageable)
-        return PageImpl(
-            lessonPage.content.map { LessonOutput.fromDomain(it) },
-            lessonPage.pageable,
-            lessonPage.totalElements,
-        )
-    }
-
-    fun findBySectionType(type: SectionType): List<Lesson> = lessonRepositoryAdapter.findBySectionsType(type)
+    ): Page<LessonOutput> = lessonRepositoryAdapter.findByChallengeId(challengeId, pageable).map(LessonOutput::fromDomain)
 
     fun findBySectionType(
         type: SectionType,
         pageable: Pageable,
-    ): Page<Lesson> {
-        val lessons = findBySectionType(type)
-        val start = pageable.offset.toInt()
-        val end = (start + pageable.pageSize).coerceAtMost(lessons.size)
-        val pageContent = if (start < end) lessons.subList(start, end) else emptyList()
-        return PageImpl(pageContent, pageable, lessons.size.toLong())
-    }
-
-    fun findBySectionTypeOutput(
-        type: SectionType,
-        pageable: Pageable,
-    ): Page<LessonOutput> {
-        val lessonPage = findBySectionType(type, pageable)
-        return PageImpl(
-            lessonPage.content.map { LessonOutput.fromDomain(it) },
-            lessonPage.pageable,
-            lessonPage.totalElements,
-        )
-    }
+    ): Page<LessonOutput> = lessonRepositoryAdapter.findBySectionsType(type, pageable).map(LessonOutput::fromDomain)
 
     fun findByChallengeIdAndSectionType(
         challengeId: String,
         type: SectionType,
         pageable: Pageable,
-    ): Page<Lesson> {
-        val lessons = findByChallengeIdAndSectionType(challengeId, type)
-        val start = pageable.offset.toInt()
-        val end = (start + pageable.pageSize).coerceAtMost(lessons.size)
-        val pageContent = if (start < end) lessons.subList(start, end) else emptyList()
-        return PageImpl(pageContent, pageable, lessons.size.toLong())
-    }
-
-    fun findByChallengeIdAndSectionTypeOutput(
-        challengeId: String,
-        type: SectionType,
-        pageable: Pageable,
-    ): Page<LessonOutput> {
-        val lessonPage = findByChallengeIdAndSectionType(challengeId, type, pageable)
-        return PageImpl(
-            lessonPage.content.map { LessonOutput.fromDomain(it) },
-            lessonPage.pageable,
-            lessonPage.totalElements,
+    ): Page<LessonOutput> =
+        lessonRepositoryAdapter.findByChallengeIdAndSectionsType(challengeId, type, pageable).map(
+            LessonOutput::fromDomain,
         )
-    }
 
     fun createLesson(input: CreateLessonInput): LessonOutput {
         val lesson = save(input)
@@ -124,9 +50,4 @@ class LessonService(
         logger.info("Saving lesson: Challenge ID = {}", input.challengeId)
         return lessonRepositoryAdapter.save(input.toDomain())
     }
-
-    private fun findByChallengeIdAndSectionType(
-        challengeId: String,
-        type: SectionType,
-    ): List<Lesson> = lessonRepositoryAdapter.findByChallengeIdAndSectionsType(challengeId, type)
 }
