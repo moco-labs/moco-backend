@@ -84,7 +84,7 @@ class LessonController(private val lessonService: LessonService) {
         @Valid @RequestBody request: CreateLessonRequest,
     ): ResponseEntity<LessonResponse> {
         return try {
-            val output = lessonService.saveOutput(request.toInput())
+            val output = lessonService.createLesson(request.toInput())
             ResponseEntity.status(HttpStatus.CREATED).body(LessonResponse.from(output))
         } catch (e: IllegalArgumentException) {
             ResponseEntity.badRequest().build()

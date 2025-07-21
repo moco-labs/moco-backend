@@ -18,8 +18,6 @@ class LessonService(
 
     fun findAll(): List<Lesson> = lessonRepositoryAdapter.findAll()
 
-    fun findAllOutput(): List<LessonOutput> = findAll().map { LessonOutput.fromDomain(it) }
-
     fun findAll(pageable: Pageable): Page<Lesson> {
         val lessons = findAll()
         val start = pageable.offset.toInt()
@@ -38,9 +36,6 @@ class LessonService(
     }
 
     fun findByChallengeId(challengeId: String): List<Lesson> = lessonRepositoryAdapter.findByChallengeId(challengeId)
-
-    fun findByChallengeIdOutput(challengeId: String): List<LessonOutput> =
-        findByChallengeId(challengeId).map { LessonOutput.fromDomain(it) }
 
     fun findByChallengeId(
         challengeId: String,
@@ -66,8 +61,6 @@ class LessonService(
     }
 
     fun findBySectionType(type: SectionType): List<Lesson> = lessonRepositoryAdapter.findBySectionsType(type)
-
-    fun findBySectionTypeOutput(type: SectionType): List<LessonOutput> = findBySectionType(type).map { LessonOutput.fromDomain(it) }
 
     fun findBySectionType(
         type: SectionType,
@@ -95,16 +88,6 @@ class LessonService(
     fun findByChallengeIdAndSectionType(
         challengeId: String,
         type: SectionType,
-    ): List<Lesson> = lessonRepositoryAdapter.findByChallengeIdAndSectionsType(challengeId, type)
-
-    fun findByChallengeIdAndSectionTypeOutput(
-        challengeId: String,
-        type: SectionType,
-    ): List<LessonOutput> = findByChallengeIdAndSectionType(challengeId, type).map { LessonOutput.fromDomain(it) }
-
-    fun findByChallengeIdAndSectionType(
-        challengeId: String,
-        type: SectionType,
         pageable: Pageable,
     ): Page<Lesson> {
         val lessons = findByChallengeIdAndSectionType(challengeId, type)
@@ -127,7 +110,12 @@ class LessonService(
         )
     }
 
-    fun save(input: CreateLessonInput): Lesson {
+    fun createLesson(input: CreateLessonInput): LessonOutput {
+        val lesson = save(input)
+        return LessonOutput.fromDomain(lesson)
+    }
+
+    private fun save(input: CreateLessonInput): Lesson {
         val challenge = challengeService.findById(input.challengeId)
         if (challenge == null) {
             throw IllegalArgumentException("Challenge with ID ${input.challengeId} does not exist")
@@ -137,18 +125,8 @@ class LessonService(
         return lessonRepositoryAdapter.save(input.toDomain())
     }
 
-    fun save(lesson: Lesson): Lesson {
-        val challenge = challengeService.findById(lesson.challengeId)
-        if (challenge == null) {
-            throw IllegalArgumentException("Challenge with ID ${lesson.challengeId} does not exist")
-        }
-
-        logger.info("Saving lesson: Challenge ID = {}", lesson.challengeId)
-        return lessonRepositoryAdapter.save(lesson)
-    }
-
-    fun saveOutput(input: CreateLessonInput): LessonOutput {
-        val lesson = save(input)
-        return LessonOutput.fromDomain(lesson)
-    }
+    private fun findByChallengeIdAndSectionType(
+        challengeId: String,
+        type: SectionType,
+    ): List<Lesson> = lessonRepositoryAdapter.findByChallengeIdAndSectionsType(challengeId, type)
 }
