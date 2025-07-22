@@ -32,7 +32,7 @@ class UserService(
                 ),
             )
 
-        logger.info("User {} has been registered", createdUser.email)
+        logger.info("User id {} has been registered", createdUser.id)
 
         return UserOutput.fromDomain(createdUser)
     }
