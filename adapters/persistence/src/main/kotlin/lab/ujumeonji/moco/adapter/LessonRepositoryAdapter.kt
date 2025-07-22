@@ -5,6 +5,8 @@ import lab.ujumeonji.moco.model.SectionTypeEntity
 import lab.ujumeonji.moco.model.challenge.Lesson
 import lab.ujumeonji.moco.model.challenge.SectionType
 import lab.ujumeonji.moco.repository.LessonRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 import java.util.Optional
 
@@ -17,25 +19,37 @@ class LessonRepositoryAdapter(
         return lessonRepository.findAll().map { lessonMapper.toDomain(it) }
     }
 
+    fun findAll(pageable: Pageable): Page<Lesson> {
+        return lessonRepository.findAll(pageable).map { lessonMapper.toDomain(it) }
+    }
+
     fun findById(id: String): Optional<Lesson> {
         return lessonRepository.findById(id).map { lessonMapper.toDomain(it) }
     }
 
-    fun findByChallengeId(challengeId: String): List<Lesson> {
-        return lessonRepository.findByChallengeId(challengeId).map { lessonMapper.toDomain(it) }
+    fun findByChallengeId(
+        challengeId: String,
+        pageable: Pageable,
+    ): Page<Lesson> {
+        return lessonRepository.findByChallengeId(challengeId, pageable).map { lessonMapper.toDomain(it) }
     }
 
-    fun findBySectionsType(type: SectionType): List<Lesson> {
+    fun findBySectionsType(
+        type: SectionType,
+        pageable: Pageable,
+    ): Page<Lesson> {
         val entityType = type.toEntity()
-        return lessonRepository.findBySectionsType(entityType).map { lessonMapper.toDomain(it) }
+        return lessonRepository.findBySectionsType(entityType, pageable).map { lessonMapper.toDomain(it) }
     }
 
     fun findByChallengeIdAndSectionsType(
         challengeId: String,
         type: SectionType,
-    ): List<Lesson> {
+        pageable: Pageable,
+    ): Page<Lesson> {
         val entityType = type.toEntity()
-        return lessonRepository.findByChallengeIdAndSectionsType(challengeId, entityType).map { lessonMapper.toDomain(it) }
+        return lessonRepository.findByChallengeIdAndSectionsType(challengeId, entityType, pageable)
+            .map { lessonMapper.toDomain(it) }
     }
 
     fun save(lesson: Lesson): Lesson {
