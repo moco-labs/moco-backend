@@ -19,7 +19,6 @@ class UserService(
 
     fun signUp(request: SignUpInput): UserOutput {
         if (userRepositoryAdapter.existsByEmail(request.email)) {
-            logger.warn("Email {} is already registered", request.email)
             throw EmailAlreadyExistsException("Email ${request.email} is already registered")
         }
 
@@ -31,8 +30,6 @@ class UserService(
                     password = passwordEncoder.encode(request.password),
                 ),
             )
-
-        logger.info("User id {} has been registered", createdUser.id)
 
         return UserOutput.fromDomain(createdUser)
     }

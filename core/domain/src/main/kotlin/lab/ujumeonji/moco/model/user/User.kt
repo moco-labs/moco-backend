@@ -15,9 +15,12 @@ class User(
     init {
         require(name.isNotBlank()) { "Name must not be blank" }
         require(email.isNotBlank()) { "Email must not be blank" }
+        require(EMAIL_REGEX.matches(email)) { "Invalid email format" }
     }
 
     companion object {
+        private val EMAIL_REGEX = Regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+
         fun signUp(
             name: String,
             email: String,
