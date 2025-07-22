@@ -5,11 +5,10 @@ import lab.ujumeonji.moco.model.user.exception.AuthenticationFailedException
 import lab.ujumeonji.moco.model.user.exception.EmailAlreadyExistsException
 import lab.ujumeonji.moco.model.user.io.SignInInput
 import lab.ujumeonji.moco.model.user.io.SignUpInput
+import lab.ujumeonji.moco.model.user.io.UserOutput
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
-import java.util.UUID
 
 @Service
 class UserService(
@@ -18,25 +17,24 @@ class UserService(
 ) {
     private val logger = LoggerFactory.getLogger(UserService::class.java)
 
-    fun signUp(request: SignUpInput): User {
+    fun signUp(request: SignUpInput): UserOutput {
         if (userRepositoryAdapter.existsByEmail(request.email)) {
             throw EmailAlreadyExistsException("Email ${request.email} is already registered")
         }
 
-        val newUser =
-            User(
-                id = UUID.randomUUID().toString(),
-                name = request.name,
-                email = request.email,
-                password = passwordEncoder.encode(request.password),
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
+        val createdUser =
+            userRepositoryAdapter.save(
+                User.signUp(
+                    name = request.name,
+                    email = request.email,
+                    password = passwordEncoder.encode(request.password),
+                ),
             )
 
-        return userRepositoryAdapter.save(newUser)
+        return UserOutput.fromDomain(createdUser)
     }
 
-    fun login(request: SignInInput): User {
+    fun login(request: SignInInput): UserOutput {
         val user =
             findByEmail(request.email)
                 ?: throw AuthenticationFailedException("Invalid email or password")
@@ -45,14 +43,14 @@ class UserService(
             throw AuthenticationFailedException("Invalid email or password")
         }
 
-        return user
+        return UserOutput.fromDomain(user)
     }
 
-    fun findByEmail(email: String): User? {
-        return userRepositoryAdapter.findByEmail(email).orElse(null)
+    private fun findByEmail(email: String): User? {
+        return userRepositoryAdapter.findByEmail(email)
     }
 
-    fun findById(id: String): User? {
-        return userRepositoryAdapter.findById(id).orElse(null)
+    private fun findById(id: String): User? {
+        return userRepositoryAdapter.findById(id)
     }
 }

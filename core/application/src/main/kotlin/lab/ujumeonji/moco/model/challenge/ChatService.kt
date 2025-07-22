@@ -34,7 +34,7 @@ class ChatService(
                 "User not found with ID: $userId"
             }
 
-        val session = chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId) ?: ChatSession.create(user, challenge)
+        val session = chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId) ?: ChatSession.create(user, challenge.id)
 
         val now = LocalDateTime.now()
         session.addUserMessage(request.message, now)

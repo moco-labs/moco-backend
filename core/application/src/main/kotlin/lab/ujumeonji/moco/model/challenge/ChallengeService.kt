@@ -13,14 +13,8 @@ import org.springframework.stereotype.Service
 class ChallengeService(private val challengeRepositoryAdapter: ChallengeRepositoryAdapter) {
     private val logger = LoggerFactory.getLogger(ChallengeService::class.java)
 
-    fun findAll(): List<Challenge> = challengeRepositoryAdapter.findAll()
-
-    fun findAllOutput(): List<ChallengeOutput> = findAll().map { ChallengeOutput.fromDomain(it) }
-
-    fun findAll(pageable: Pageable): Page<Challenge> = challengeRepositoryAdapter.findAll(pageable)
-
-    fun findAllOutput(pageable: Pageable): Page<ChallengeOutput> {
-        val challengePage = findAll(pageable)
+    fun findAll(pageable: Pageable): Page<ChallengeOutput> {
+        val challengePage = challengeRepositoryAdapter.findAll(pageable)
         return PageImpl(
             challengePage.content.map { ChallengeOutput.fromDomain(it) },
             challengePage.pageable,
@@ -28,24 +22,15 @@ class ChallengeService(private val challengeRepositoryAdapter: ChallengeReposito
         )
     }
 
-    fun findById(id: String): Challenge? = challengeRepositoryAdapter.findById(id)
+    fun findById(id: String): ChallengeOutput? = challengeRepositoryAdapter.findById(id)?.let { ChallengeOutput.fromDomain(it) }
 
-    fun findByIdOutput(id: String): ChallengeOutput? = findById(id)?.let { ChallengeOutput.fromDomain(it) }
-
-    fun findByTitle(title: String): Challenge? = challengeRepositoryAdapter.findByTitle(title)
-
-    fun findByTitleOutput(title: String): ChallengeOutput? = findByTitle(title)?.let { ChallengeOutput.fromDomain(it) }
+    fun findByTitle(title: String): ChallengeOutput? = challengeRepositoryAdapter.findByTitle(title)?.let { ChallengeOutput.fromDomain(it) }
 
     fun findByDifficulty(
         difficulty: String,
         pageable: Pageable,
-    ): Page<Challenge> = challengeRepositoryAdapter.findByDifficulty(difficulty, pageable)
-
-    fun findByDifficultyOutput(
-        difficulty: String,
-        pageable: Pageable,
     ): Page<ChallengeOutput> {
-        val challengePage = findByDifficulty(difficulty, pageable)
+        val challengePage = challengeRepositoryAdapter.findByDifficulty(difficulty, pageable)
         return PageImpl(
             challengePage.content.map { ChallengeOutput.fromDomain(it) },
             challengePage.pageable,
@@ -56,13 +41,8 @@ class ChallengeService(private val challengeRepositoryAdapter: ChallengeReposito
     fun findByTag(
         tag: String,
         pageable: Pageable,
-    ): Page<Challenge> = challengeRepositoryAdapter.findByTagsContaining(tag, pageable)
-
-    fun findByTagOutput(
-        tag: String,
-        pageable: Pageable,
     ): Page<ChallengeOutput> {
-        val challengePage = findByTag(tag, pageable)
+        val challengePage = challengeRepositoryAdapter.findByTagsContaining(tag, pageable)
         return PageImpl(
             challengePage.content.map { ChallengeOutput.fromDomain(it) },
             challengePage.pageable,
@@ -70,13 +50,8 @@ class ChallengeService(private val challengeRepositoryAdapter: ChallengeReposito
         )
     }
 
-    fun save(request: CreateChallengeInput): Challenge {
+    fun create(request: CreateChallengeInput): ChallengeOutput {
         logger.info("저장 중인 챌린지: {}", request.title)
-        return challengeRepositoryAdapter.save(request.toDomain())
-    }
-
-    fun saveOutput(request: CreateChallengeInput): ChallengeOutput {
-        val challenge = save(request)
-        return ChallengeOutput.fromDomain(challenge)
+        return challengeRepositoryAdapter.save(request.toDomain()).let(ChallengeOutput::fromDomain)
     }
 }

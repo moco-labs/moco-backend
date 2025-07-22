@@ -34,7 +34,7 @@ class ChallengeController(
         val pageable = request.toPageable()
 
         if (request.title != null) {
-            val challengeOutput = challengeService.findByTitleOutput(request.title)
+            val challengeOutput = challengeService.findByTitle(request.title)
             return if (challengeOutput != null) {
                 val challengeResponse = ChallengeResponse.from(challengeOutput)
                 val singleItemPage = PageImpl(listOf(challengeResponse), pageable, 1)
@@ -45,7 +45,7 @@ class ChallengeController(
         }
 
         if (request.difficulty != null) {
-            val outputPage = challengeService.findByDifficultyOutput(request.difficulty, pageable)
+            val outputPage = challengeService.findByDifficulty(request.difficulty, pageable)
             val responsePage =
                 PageImpl(
                     outputPage.content.map { ChallengeResponse.from(it) },
@@ -56,7 +56,7 @@ class ChallengeController(
         }
 
         if (request.tag != null) {
-            val outputPage = challengeService.findByTagOutput(request.tag, pageable)
+            val outputPage = challengeService.findByTag(request.tag, pageable)
             val responsePage =
                 PageImpl(
                     outputPage.content.map { ChallengeResponse.from(it) },
@@ -66,7 +66,7 @@ class ChallengeController(
             return ResponseEntity.ok(responsePage)
         }
 
-        val outputPage = challengeService.findAllOutput(pageable)
+        val outputPage = challengeService.findAll(pageable)
         val responsePage =
             PageImpl(
                 outputPage.content.map { ChallengeResponse.from(it) },
@@ -80,7 +80,7 @@ class ChallengeController(
     fun getChallenge(
         @PathVariable id: String,
     ): ResponseEntity<ChallengeResponse> {
-        val challengeOutput = challengeService.findByIdOutput(id)
+        val challengeOutput = challengeService.findById(id)
         return if (challengeOutput != null) {
             ResponseEntity.ok(ChallengeResponse.from(challengeOutput))
         } else {
@@ -92,7 +92,7 @@ class ChallengeController(
     fun createChallenge(
         @Valid @RequestBody request: CreateChallengeRequest,
     ): ResponseEntity<ChallengeResponse> {
-        val challengeOutput = challengeService.saveOutput(request.toInput())
+        val challengeOutput = challengeService.create(request.toInput())
         return ResponseEntity.status(HttpStatus.CREATED).body(ChallengeResponse.from(challengeOutput))
     }
 

@@ -60,10 +60,10 @@ class ChatSession(
     companion object {
         fun create(
             user: User,
-            challenge: Challenge,
+            challengeId: String,
         ) = ChatSession(
             id = UUID.randomUUID().toString(),
-            challengeId = challenge.id,
+            challengeId = challengeId,
             userId = user.id,
         )
     }
