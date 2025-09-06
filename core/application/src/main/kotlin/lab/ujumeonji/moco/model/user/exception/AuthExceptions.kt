@@ -1,7 +1,19 @@
 package lab.ujumeonji.moco.model.user.exception
 
-class EmailAlreadyExistsException(message: String) : RuntimeException(message)
+import lab.ujumeonji.moco.support.error.BusinessException
+import lab.ujumeonji.moco.support.error.ErrorCode
 
-class PasswordMismatchException(message: String) : RuntimeException(message)
+class EmailAlreadyExistsException(message: String? = null) : BusinessException(
+    ErrorCode.EMAIL_ALREADY_EXISTS,
+    message ?: ErrorCode.EMAIL_ALREADY_EXISTS.message,
+)
 
-class AuthenticationFailedException(message: String) : RuntimeException(message)
+class PasswordMismatchException(message: String? = null) : BusinessException(
+    ErrorCode.PASSWORD_MISMATCH,
+    message ?: ErrorCode.PASSWORD_MISMATCH.message,
+)
+
+class AuthenticationFailedException(message: String? = null) : BusinessException(
+    ErrorCode.AUTHENTICATION_FAILED,
+    message ?: ErrorCode.AUTHENTICATION_FAILED.message,
+)

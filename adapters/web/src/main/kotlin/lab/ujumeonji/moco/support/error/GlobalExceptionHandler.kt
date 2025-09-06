@@ -12,14 +12,14 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException::class)
     fun handleBusinessException(ex: BusinessException): ResponseEntity<ErrorResponse> {
-        logger.error("Business exception occurred: {}", ex.message)
+        logger.warn("Business exception occurred: {}", ex.message)
 
         val response =
             ErrorResponse(
                 timestamp = LocalDateTime.now(),
                 status = ex.errorCode.status.value(),
                 code = ex.errorCode.code,
-                message = ex.message,
+                message = ex.message ?: ex.errorCode.message,
             )
 
         return ResponseEntity.status(ex.errorCode.status).body(response)
