@@ -21,6 +21,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
