@@ -3,6 +3,7 @@ package lab.ujumeonji.moco.model.challenge
 import lab.ujumeonji.moco.adapter.LessonRepositoryAdapter
 import lab.ujumeonji.moco.model.challenge.io.CreateLessonInput
 import lab.ujumeonji.moco.model.challenge.io.LessonOutput
+import lab.ujumeonji.moco.support.error.BusinessException
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -36,15 +37,46 @@ class LessonService(
             LessonOutput::fromDomain,
         )
 
+    fun searchLessons(
+        challengeId: String?,
+        sectionType: String?,
+        pageable: Pageable,
+    ): Page<LessonOutput> {
+        return when {
+            challengeId != null && sectionType != null -> {
+                val type = parseSectionType(sectionType)
+                findByChallengeIdAndSectionType(challengeId, type, pageable)
+            }
+            challengeId != null -> {
+                findByChallengeId(challengeId, pageable)
+            }
+            sectionType != null -> {
+                val type = parseSectionType(sectionType)
+                findBySectionType(type, pageable)
+            }
+            else -> {
+                findAll(pageable)
+            }
+        }
+    }
+
     fun createLesson(input: CreateLessonInput): LessonOutput {
         val lesson = save(input)
         return LessonOutput.fromDomain(lesson)
     }
 
+    private fun parseSectionType(sectionType: String): SectionType {
+        return try {
+            SectionType.valueOf(sectionType.uppercase())
+        } catch (e: IllegalArgumentException) {
+            throw BusinessException.invalidRequest("유효하지 않은 섹션 타입입니다: $sectionType")
+        }
+    }
+
     private fun save(input: CreateLessonInput): Lesson {
         val challenge = challengeService.findById(input.challengeId)
         if (challenge == null) {
-            throw IllegalArgumentException("Challenge with ID ${input.challengeId} does not exist")
+            throw BusinessException.challengeNotFound(input.challengeId)
         }
 
         logger.info("Saving lesson: Challenge ID = {}", input.challengeId)
