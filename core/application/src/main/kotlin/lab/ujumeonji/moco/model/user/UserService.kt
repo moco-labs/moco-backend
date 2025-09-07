@@ -1,11 +1,10 @@
 package lab.ujumeonji.moco.model.user
 
 import lab.ujumeonji.moco.adapter.UserRepositoryAdapter
-import lab.ujumeonji.moco.model.user.exception.AuthenticationFailedException
-import lab.ujumeonji.moco.model.user.exception.EmailAlreadyExistsException
 import lab.ujumeonji.moco.model.user.io.SignInInput
 import lab.ujumeonji.moco.model.user.io.SignUpInput
 import lab.ujumeonji.moco.model.user.io.UserOutput
+import lab.ujumeonji.moco.support.error.BusinessException
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -19,7 +18,7 @@ class UserService(
 
     fun signUp(request: SignUpInput): UserOutput {
         if (userRepositoryAdapter.existsByEmail(request.email)) {
-            throw EmailAlreadyExistsException("Email ${request.email} is already registered")
+            throw BusinessException.emailAlreadyExists(request.email)
         }
 
         val createdUser =
@@ -37,10 +36,10 @@ class UserService(
     fun login(request: SignInInput): UserOutput {
         val user =
             findByEmail(request.email)
-                ?: throw AuthenticationFailedException("Invalid email or password")
+                ?: throw BusinessException.authenticationFailed("Invalid email or password")
 
         if (!passwordEncoder.matches(request.password, user.password)) {
-            throw AuthenticationFailedException("Invalid email or password")
+            throw BusinessException.authenticationFailed("Invalid email or password")
         }
 
         return UserOutput.fromDomain(user)
@@ -50,7 +49,7 @@ class UserService(
         return userRepositoryAdapter.findByEmail(email)
     }
 
-    private fun findById(id: String): User? {
+    fun findById(id: String): User? {
         return userRepositoryAdapter.findById(id)
     }
 }

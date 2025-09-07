@@ -17,12 +17,12 @@ class GlobalExceptionHandler {
         val response =
             ErrorResponse(
                 timestamp = LocalDateTime.now(),
-                status = ex.errorCode.status.value(),
+                status = ex.errorCode.httpStatus,
                 code = ex.errorCode.code,
-                message = ex.message ?: ex.errorCode.message,
+                message = ex.message,
             )
 
-        return ResponseEntity.status(ex.errorCode.status).body(response)
+        return ResponseEntity.status(ex.errorCode.httpStatus).body(response)
     }
 
     @ExceptionHandler(Exception::class)
@@ -33,11 +33,11 @@ class GlobalExceptionHandler {
         val response =
             ErrorResponse(
                 timestamp = LocalDateTime.now(),
-                status = errorCode.status.value(),
+                status = errorCode.httpStatus,
                 code = errorCode.code,
                 message = errorCode.message,
             )
 
-        return ResponseEntity.status(errorCode.status).body(response)
+        return ResponseEntity.status(errorCode.httpStatus).body(response)
     }
 }
