@@ -4,6 +4,7 @@ import lab.ujumeonji.moco.adapter.ChatSessionRepositoryAdapter
 import lab.ujumeonji.moco.model.user.UserService
 import lab.ujumeonji.moco.service.challenge.io.ChallengeChatInput
 import lab.ujumeonji.moco.service.challenge.io.ChallengeChatOutput
+import lab.ujumeonji.moco.support.error.BusinessException
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.ai.chat.messages.UserMessage
@@ -25,30 +26,36 @@ class ChatService(
         userId: String,
         request: ChallengeChatInput,
     ): ChallengeChatOutput {
-        val challenge =
-            requireNotNull(challengeService.findById(challengeId)) {
-                "Challenge not found with ID: $challengeId"
+        try {
+            val challenge =
+                challengeService.findById(challengeId)
+                    ?: throw BusinessException.challengeNotFound(challengeId)
+            val user =
+                userService.findById(userId)
+                    ?: throw BusinessException.userNotFound(userId)
+
+            val session =
+                chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId)
+                    ?: ChatSession.create(user, challenge.id)
+
+            val now = LocalDateTime.now()
+            session.addUserMessage(request.message, now)
+
+            val systemAnswer = getAnswer(session, challenge.title, challenge.description)
+            session.addSystemMessage(systemAnswer, now)
+
+            if (session.isLastInteraction) {
+                session.understandingScore = understandingScoreCalculator.calculateScore(session.messages)
             }
-        val user =
-            requireNotNull(userService.findById(userId)) {
-                "User not found with ID: $userId"
-            }
 
-        val session = chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId) ?: ChatSession.create(user, challenge.id)
-
-        val now = LocalDateTime.now()
-        session.addUserMessage(request.message, now)
-
-        val systemAnswer = getAnswer(session, challenge.title, challenge.description)
-        session.addSystemMessage(systemAnswer, now)
-
-        if (session.isLastInteraction) {
-            session.understandingScore = understandingScoreCalculator.calculateScore(session.messages)
+            val savedSession = chatSessionRepositoryAdapter.save(session)
+            return savedSession.toResponseDto()
+        } catch (e: BusinessException) {
+            throw e
+        } catch (e: Exception) {
+            logger.error("Error processing chat for challenge $challengeId and user $userId", e)
+            throw BusinessException.chatProcessingFailed("채팅 처리 중 오류가 발생했습니다: ${e.message}")
         }
-
-        val savedSession = chatSessionRepositoryAdapter.save(session)
-
-        return savedSession.toResponseDto()
     }
 
     private fun getAnswer(
@@ -109,20 +116,27 @@ class ChatService(
         challengeId: String,
         userId: String,
     ): ChallengeChatOutput {
-        challengeService.findById(challengeId)
-            ?: throw IllegalArgumentException("Challenge not found with ID: $challengeId")
+        try {
+            challengeService.findById(challengeId)
+                ?: throw BusinessException.challengeNotFound(challengeId)
 
-        val sessions = chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId)
+            val sessions = chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId)
 
-        return sessions?.toResponseDto() ?: ChallengeChatOutput(
-            sessionId = "",
-            challengeId = challengeId,
-            userId = userId,
-            messages = emptyList(),
-            understandingScore = 0,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now(),
-        )
+            return sessions?.toResponseDto() ?: ChallengeChatOutput(
+                sessionId = "",
+                challengeId = challengeId,
+                userId = userId,
+                messages = emptyList(),
+                understandingScore = 0,
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(),
+            )
+        } catch (e: BusinessException) {
+            throw e
+        } catch (e: Exception) {
+            logger.error("Error getting chat sessions for challenge $challengeId and user $userId", e)
+            throw BusinessException.chatProcessingFailed("채팅 세션 조회 중 오류가 발생했습니다: ${e.message}")
+        }
     }
 
     private val understandingScoreCalculator =

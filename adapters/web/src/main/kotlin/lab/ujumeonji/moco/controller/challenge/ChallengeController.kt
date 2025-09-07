@@ -32,41 +32,14 @@ class ChallengeController(
         @ModelAttribute @Valid request: GetChallengesRequest,
     ): ResponseEntity<Page<ChallengeResponse>> {
         val pageable = request.toPageable()
+        val outputPage =
+            challengeService.searchChallenges(
+                title = request.title,
+                difficulty = request.difficulty,
+                tag = request.tag,
+                pageable = pageable,
+            )
 
-        if (request.title != null) {
-            val challengeOutput = challengeService.findByTitle(request.title)
-            return if (challengeOutput != null) {
-                val challengeResponse = ChallengeResponse.from(challengeOutput)
-                val singleItemPage = PageImpl(listOf(challengeResponse), pageable, 1)
-                ResponseEntity.ok(singleItemPage)
-            } else {
-                ResponseEntity.ok(PageImpl(emptyList<ChallengeResponse>(), pageable, 0))
-            }
-        }
-
-        if (request.difficulty != null) {
-            val outputPage = challengeService.findByDifficulty(request.difficulty, pageable)
-            val responsePage =
-                PageImpl(
-                    outputPage.content.map { ChallengeResponse.from(it) },
-                    outputPage.pageable,
-                    outputPage.totalElements,
-                )
-            return ResponseEntity.ok(responsePage)
-        }
-
-        if (request.tag != null) {
-            val outputPage = challengeService.findByTag(request.tag, pageable)
-            val responsePage =
-                PageImpl(
-                    outputPage.content.map { ChallengeResponse.from(it) },
-                    outputPage.pageable,
-                    outputPage.totalElements,
-                )
-            return ResponseEntity.ok(responsePage)
-        }
-
-        val outputPage = challengeService.findAll(pageable)
         val responsePage =
             PageImpl(
                 outputPage.content.map { ChallengeResponse.from(it) },
@@ -80,12 +53,8 @@ class ChallengeController(
     fun getChallenge(
         @PathVariable id: String,
     ): ResponseEntity<ChallengeResponse> {
-        val challengeOutput = challengeService.findById(id)
-        return if (challengeOutput != null) {
-            ResponseEntity.ok(ChallengeResponse.from(challengeOutput))
-        } else {
-            ResponseEntity.notFound().build()
-        }
+        val challengeOutput = challengeService.getChallengeById(id)
+        return ResponseEntity.ok(ChallengeResponse.from(challengeOutput))
     }
 
     @PostMapping
@@ -102,14 +71,8 @@ class ChallengeController(
         @PathVariable challengeId: String,
         @Valid @RequestBody request: ChallengeChatRequest,
     ): ResponseEntity<ChallengeChatResponse> {
-        try {
-            val response = chatService.processChat(challengeId, userId, request.toInput())
-            return ResponseEntity.ok(ChallengeChatResponse.from(response))
-        } catch (e: IllegalArgumentException) {
-            return ResponseEntity.badRequest().build()
-        } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
-        }
+        val response = chatService.processChat(challengeId, userId, request.toInput())
+        return ResponseEntity.ok(ChallengeChatResponse.from(response))
     }
 
     @GetMapping("/{challengeId}/chats")
@@ -117,13 +80,7 @@ class ChallengeController(
         @RequiredAuth userId: String,
         @PathVariable challengeId: String,
     ): ResponseEntity<ChallengeChatResponse> {
-        try {
-            val chatSessions = chatService.getChatSessionsByChallengeAndUser(challengeId, userId)
-            return ResponseEntity.ok(ChallengeChatResponse.from(chatSessions))
-        } catch (e: IllegalArgumentException) {
-            return ResponseEntity.badRequest().build()
-        } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
-        }
+        val chatSessions = chatService.getChatSessionsByChallengeAndUser(challengeId, userId)
+        return ResponseEntity.ok(ChallengeChatResponse.from(chatSessions))
     }
 }
