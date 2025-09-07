@@ -45,11 +45,11 @@ class UserService(
         return UserOutput.fromDomain(user)
     }
 
-    private fun findByEmail(email: String): User? {
-        return userRepositoryAdapter.findByEmail(email)
-    }
-
     fun findById(id: String): User? {
         return userRepositoryAdapter.findById(id)
+    }
+
+    private fun findByEmail(email: String): User? {
+        return userRepositoryAdapter.findByEmail(email)
     }
 }

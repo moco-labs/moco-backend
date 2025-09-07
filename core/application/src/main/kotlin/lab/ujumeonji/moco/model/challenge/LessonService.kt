@@ -16,27 +16,6 @@ class LessonService(
 ) {
     private val logger = LoggerFactory.getLogger(LessonService::class.java)
 
-    fun findAll(pageable: Pageable): Page<LessonOutput> = lessonRepositoryAdapter.findAll(pageable).map(LessonOutput::fromDomain)
-
-    fun findByChallengeId(
-        challengeId: String,
-        pageable: Pageable,
-    ): Page<LessonOutput> = lessonRepositoryAdapter.findByChallengeId(challengeId, pageable).map(LessonOutput::fromDomain)
-
-    fun findBySectionType(
-        type: SectionType,
-        pageable: Pageable,
-    ): Page<LessonOutput> = lessonRepositoryAdapter.findBySectionsType(type, pageable).map(LessonOutput::fromDomain)
-
-    fun findByChallengeIdAndSectionType(
-        challengeId: String,
-        type: SectionType,
-        pageable: Pageable,
-    ): Page<LessonOutput> =
-        lessonRepositoryAdapter.findByChallengeIdAndSectionsType(challengeId, type, pageable).map(
-            LessonOutput::fromDomain,
-        )
-
     fun searchLessons(
         challengeId: String?,
         sectionType: String?,
@@ -64,6 +43,27 @@ class LessonService(
         val lesson = save(input)
         return LessonOutput.fromDomain(lesson)
     }
+
+    private fun findAll(pageable: Pageable): Page<LessonOutput> = lessonRepositoryAdapter.findAll(pageable).map(LessonOutput::fromDomain)
+
+    private fun findByChallengeId(
+        challengeId: String,
+        pageable: Pageable,
+    ): Page<LessonOutput> = lessonRepositoryAdapter.findByChallengeId(challengeId, pageable).map(LessonOutput::fromDomain)
+
+    private fun findBySectionType(
+        type: SectionType,
+        pageable: Pageable,
+    ): Page<LessonOutput> = lessonRepositoryAdapter.findBySectionsType(type, pageable).map(LessonOutput::fromDomain)
+
+    private fun findByChallengeIdAndSectionType(
+        challengeId: String,
+        type: SectionType,
+        pageable: Pageable,
+    ): Page<LessonOutput> =
+        lessonRepositoryAdapter.findByChallengeIdAndSectionsType(challengeId, type, pageable).map(
+            LessonOutput::fromDomain,
+        )
 
     private fun parseSectionType(sectionType: String): SectionType {
         return try {
