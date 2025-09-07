@@ -17,4 +17,21 @@ data class ChallengeChatOutput(
         val sender: String,
         val timestamp: LocalDateTime = LocalDateTime.now(),
     )
+
+    companion object {
+        fun emptyOutput(
+            challengeId: String,
+            userId: String,
+            now: LocalDateTime = LocalDateTime.now(),
+        ): ChallengeChatOutput =
+            ChallengeChatOutput(
+                sessionId = "",
+                challengeId = challengeId,
+                userId = userId,
+                messages = emptyList(),
+                understandingScore = 0,
+                createdAt = now,
+                updatedAt = now,
+            )
+    }
 }

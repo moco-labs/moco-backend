@@ -5,69 +5,39 @@ import lab.ujumeonji.moco.model.user.UserService
 import lab.ujumeonji.moco.service.challenge.io.ChallengeChatInput
 import lab.ujumeonji.moco.service.challenge.io.ChallengeChatOutput
 import lab.ujumeonji.moco.support.error.BusinessException
+import lab.ujumeonji.moco.support.prompt.PromptTemplateService
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
-import org.springframework.ai.chat.messages.UserMessage
-import org.springframework.ai.chat.prompt.Prompt
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
+import org.springframework.validation.annotation.Validated
 import java.time.LocalDateTime
+import javax.validation.Valid
 
 @Service
+@Validated
 class ChatService(
     private val chatSessionRepositoryAdapter: ChatSessionRepositoryAdapter,
     private val challengeService: ChallengeService,
-    private val chatClient: ChatClient,
+    @Qualifier("tutorChatClient") private val tutorChatClient: ChatClient,
+    @Qualifier("scoringChatClient") private val scoringChatClient: ChatClient,
     private val userService: UserService,
+    private val promptTemplateService: PromptTemplateService,
 ) {
     private val logger = LoggerFactory.getLogger(ChatService::class.java)
-    private val understandingScoreCalculator =
-        object : UnderstandingScoreCalculator {
-            override fun calculateScore(messages: List<Message>): Int {
-                val scoringPromptText =
-                    """
-                    Analyze the following conversation and evaluate the user's understanding of the problem on a scale of 0-100.
-
-                    Evaluation Criteria:
-                    - 80-100: Excellent understanding. The user demonstrates complete comprehension of the problem and clearly identifies the solution approach.
-                    - 60-79: Good understanding. The user grasps most concepts but shows some gaps in understanding.
-                    - 40-59: Basic understanding. The user understands fundamental concepts but struggles with solution direction.
-                    - 20-39: Poor understanding. The user shows significant difficulty in comprehending the problem and needs substantial guidance.
-                    - 0-19: Minimal understanding. The user shows almost no comprehension of the problem.
-
-                    Consider these factors in your evaluation:
-                    1. Clarity of questions asked
-                    2. Relevance of responses to the problem context
-                    3. Demonstrated grasp of key concepts
-                    4. Logical progression in problem-solving approach
-
-                    Conversation:
-                    ${messages.joinToString("\n") { "${it.sender}: ${it.content}" }}
-
-                    Respond with only a number between 0 and 100.
-                    """.trimIndent()
-
-                try {
-                    val prompt = Prompt(listOf(UserMessage(scoringPromptText)))
-                    val aiResponse = chatClient.prompt(prompt).call()
-                    val scoreText = aiResponse.content()?.trim() ?: "0"
-
-                    return scoreText.filter { it.isDigit() }.toIntOrNull()?.coerceIn(0, 100) ?: 70
-                } catch (e: Exception) {
-                    logger.error("Error calling Gemini API for scoring: ${e.message}", e)
-                    return 70
-                }
-            }
-        }
 
     fun processChat(
         challengeId: String,
         userId: String,
-        request: ChallengeChatInput,
+        @Valid request: ChallengeChatInput,
     ): ChallengeChatOutput {
         try {
             val challenge =
                 challengeService.findById(challengeId)
                     ?: throw BusinessException.challengeNotFound(challengeId)
+
             val user =
                 userService.findById(userId)
                     ?: throw BusinessException.userNotFound(userId)
@@ -76,14 +46,25 @@ class ChatService(
                 chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId)
                     ?: ChatSession.create(user, challenge.id)
 
+            if (session.remainingInteractions <= 0) {
+                throw BusinessException.invalidChatRequest("채팅 제한 횟수에 도달했습니다.")
+            }
+
             val now = LocalDateTime.now()
             session.addUserMessage(request.message, now)
 
-            val systemAnswer = getAnswer(session, challenge.title, challenge.description)
-            session.addSystemMessage(systemAnswer, now)
+            val tutorResponse =
+                generateTutorResponse(
+                    session = session,
+                    challengeTitle = challenge.title,
+                    challengeDescription = challenge.description,
+                    userMessage = request.message,
+                )
+
+            session.addSystemMessage(tutorResponse, now)
 
             if (session.isLastInteraction) {
-                session.understandingScore = understandingScoreCalculator.calculateScore(session.messages)
+                session.understandingScore = calculateUnderstandingScore(session.messages)
             }
 
             val savedSession = chatSessionRepositoryAdapter.save(session)
@@ -92,7 +73,7 @@ class ChatService(
             throw e
         } catch (e: Exception) {
             logger.error("Error processing chat for challenge $challengeId and user $userId", e)
-            throw BusinessException.chatProcessingFailed("채팅 처리 중 오류가 발생했습니다: ${e.message}")
+            throw BusinessException.chatProcessingFailed("채팅 처리 중 오류가 발생했습니다")
         }
     }
 
@@ -104,56 +85,78 @@ class ChatService(
             challengeService.findById(challengeId)
                 ?: throw BusinessException.challengeNotFound(challengeId)
 
-            val sessions = chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId)
+            val session = chatSessionRepositoryAdapter.findByChallengeIdAndUserId(challengeId, userId)
 
-            return sessions?.toResponseDto() ?: ChallengeChatOutput(
-                sessionId = "",
+            return session?.toResponseDto() ?: ChallengeChatOutput.emptyOutput(
                 challengeId = challengeId,
                 userId = userId,
-                messages = emptyList(),
-                understandingScore = 0,
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
             )
         } catch (e: BusinessException) {
             throw e
         } catch (e: Exception) {
             logger.error("Error getting chat sessions for challenge $challengeId and user $userId", e)
-            throw BusinessException.chatProcessingFailed("채팅 세션 조회 중 오류가 발생했습니다: ${e.message}")
+            throw BusinessException.chatProcessingFailed("채팅 세션 조회 중 오류가 발생했습니다")
         }
     }
 
-    private fun getAnswer(
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delay = 1000, multiplier = 2.0),
+    )
+    private fun generateTutorResponse(
         session: ChatSession,
         challengeTitle: String,
         challengeDescription: String,
+        userMessage: String,
     ): String {
-        val systemPrompt =
-            """
-            You are a friendly AI tutor helping with algorithm problem solving.
+        return try {
+            val conversationHistory =
+                session.messages
+                    .takeLast(10)
+                    .joinToString("\n") { "${it.sender}: ${it.content}" }
 
-            Current Problem: $challengeTitle
-            Problem Description: $challengeDescription
+            val prompt =
+                promptTemplateService.createPromptFromTemplate(
+                    "tutor-response",
+                    mapOf(
+                        "challengeTitle" to challengeTitle,
+                        "challengeDescription" to challengeDescription,
+                        "conversation" to conversationHistory,
+                        "userMessage" to userMessage,
+                    ),
+                )
 
-            When responding to user questions about this problem, follow these guidelines:
-            1. Don't provide easy answers. Give hints that allow the user to solve the problem independently.
-            2. Provide specific help for areas where the user is stuck.
-            3. Guide the user through a step-by-step approach.
-            4. Ask questions to check understanding during the process.
-            5. Offer encouragement and positive feedback.
-            6. Respond in Korean language.
-
-            Previous conversation:
-            ${session.messages.joinToString("\n") { "${it.sender}: ${it.content}" }}
-            """.trimIndent()
-
-        try {
-            val prompt = Prompt(listOf(UserMessage(systemPrompt)))
-            val aiResponse = chatClient.prompt(prompt).call()
-            return aiResponse.content() ?: "죄송합니다. 응답을 생성할 수 없습니다."
+            val response = tutorChatClient.prompt(prompt).call()
+            response.content() ?: "죄송합니다. 응답을 생성할 수 없습니다."
         } catch (e: Exception) {
-            logger.error("Error calling Gemini API: ${e.message}", e)
-            return "죄송합니다. 일시적인 오류가 발생했습니다. 다시 시도해주세요."
+            logger.error("Error generating tutor response", e)
+            "죄송합니다. 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+        }
+    }
+
+    @Retryable(
+        value = [Exception::class],
+        maxAttempts = 3,
+        backoff = Backoff(delay = 1000, multiplier = 2.0),
+    )
+    private fun calculateUnderstandingScore(messages: List<Message>): Int {
+        try {
+            val conversation = messages.joinToString("\n") { "${it.sender}: ${it.content}" }
+
+            val prompt =
+                promptTemplateService.createPromptFromTemplate(
+                    "understanding-score",
+                    mapOf("conversation" to conversation),
+                )
+
+            val response = scoringChatClient.prompt(prompt).call()
+            val scoreText = response.content()?.trim() ?: "70"
+
+            return scoreText.filter { it.isDigit() }.toIntOrNull()?.coerceIn(0, 100) ?: 70
+        } catch (e: Exception) {
+            logger.warn("Error calculating understanding score, using default value", e)
+            return 70
         }
     }
 

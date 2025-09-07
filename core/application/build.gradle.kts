@@ -21,6 +21,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api")
     implementation("org.springframework.data:spring-data-commons")
     implementation("org.springframework.ai:spring-ai-core:1.0.0-M6")
+    implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.security:spring-security-crypto")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
