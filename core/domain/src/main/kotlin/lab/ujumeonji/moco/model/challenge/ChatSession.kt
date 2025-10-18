@@ -4,10 +4,6 @@ import lab.ujumeonji.moco.model.user.User
 import java.time.LocalDateTime
 import java.util.UUID
 
-interface UnderstandingScoreCalculator {
-    fun calculateScore(messages: List<Message>): Int
-}
-
 class ChatSession(
     val id: String? = null,
     val challengeId: String,
@@ -24,6 +20,9 @@ class ChatSession(
 
     val remainingInteractions: Int
         get() = maxInteractions - interactionCount
+
+    val conversationId: String
+        get() = id ?: UUID.randomUUID().toString()
 
     fun addUserMessage(
         content: String,
