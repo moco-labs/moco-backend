@@ -8,6 +8,7 @@ import lab.ujumeonji.moco.support.error.BusinessException
 import lab.ujumeonji.moco.support.prompt.PromptTemplateService
 import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.memory.ChatMemory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.retry.annotation.Backoff
 import org.springframework.retry.annotation.Retryable
@@ -111,23 +112,21 @@ class ChatService(
         userMessage: String,
     ): String {
         return try {
-            val conversationHistory =
-                session.messages
-                    .takeLast(10)
-                    .joinToString("\n") { "${it.sender}: ${it.content}" }
-
             val prompt =
                 promptTemplateService.createPromptFromTemplate(
                     "tutor-response",
                     mapOf(
                         "challengeTitle" to challengeTitle,
                         "challengeDescription" to challengeDescription,
-                        "conversation" to conversationHistory,
                         "userMessage" to userMessage,
                     ),
                 )
 
-            val response = tutorChatClient.prompt(prompt).call()
+            val response =
+                tutorChatClient.prompt(prompt)
+                    .advisors { it.param(ChatMemory.CONVERSATION_ID, session.conversationId) }
+                    .call()
+
             response.content() ?: "죄송합니다. 응답을 생성할 수 없습니다."
         } catch (e: Exception) {
             logger.error("Error generating tutor response", e)
