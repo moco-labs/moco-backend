@@ -21,8 +21,10 @@ class ChatSession(
     val remainingInteractions: Int
         get() = maxInteractions - interactionCount
 
+    private var cachedConversationId: String? = null
+
     val conversationId: String
-        get() = id ?: UUID.randomUUID().toString()
+        get() = id ?: cachedConversationId ?: UUID.randomUUID().toString().also { cachedConversationId = it }
 
     fun addUserMessage(
         content: String,
