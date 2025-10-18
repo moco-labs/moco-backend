@@ -2,6 +2,7 @@ package lab.ujumeonji.moco.repository
 
 import lab.ujumeonji.moco.model.MessageEntity
 import lab.ujumeonji.moco.model.challenge.MessageSender
+import org.slf4j.LoggerFactory
 import org.springframework.ai.chat.memory.ChatMemoryRepository
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
@@ -14,6 +15,8 @@ import java.time.LocalDateTime
 class MongoChatMemoryRepository(
     private val chatSessionRepository: ChatSessionRepository,
 ) : ChatMemoryRepository {
+    private val logger = LoggerFactory.getLogger(MongoChatMemoryRepository::class.java)
+
     override fun findConversationIds(): List<String?> = chatSessionRepository.findAll().map { it.id }
 
     override fun findByConversationId(conversationId: String): List<Message?> {
@@ -37,6 +40,16 @@ class MongoChatMemoryRepository(
         conversationId: String,
         messages: List<Message>,
     ) {
+        val session = chatSessionRepository.findByIdOrNull(conversationId)
+        if (session == null) {
+            logger.warn(
+                "Skipping chat memory persistence; no session found for conversationId={} (incomingMessages={})",
+                conversationId,
+                messages.size,
+            )
+            return
+        }
+
         val mappedMessages =
             messages.map {
                 MessageEntity(
@@ -45,8 +58,6 @@ class MongoChatMemoryRepository(
                     it.metadata["timestamp"] as? LocalDateTime ?: LocalDateTime.now(),
                 )
             }
-
-        val session = chatSessionRepository.findByIdOrNull(conversationId) ?: return
 
         session.messages = mappedMessages.toMutableList()
 
