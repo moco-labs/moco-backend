@@ -1,6 +1,9 @@
 package lab.ujumeonji.moco.config
 
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
+import org.springframework.ai.chat.memory.ChatMemory
+import org.springframework.ai.chat.memory.MessageWindowChatMemory
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -15,7 +18,10 @@ import java.nio.charset.StandardCharsets
 @EnableConfigurationProperties(AiProperties::class)
 class AiConfig(private val aiProperties: AiProperties) {
     @Bean
-    fun tutorChatClient(builder: ChatClient.Builder): ChatClient =
+    fun tutorChatClient(
+        builder: ChatClient.Builder,
+        memory: ChatMemory,
+    ): ChatClient =
         builder
             .defaultOptions(
                 OpenAiChatOptions.builder()
@@ -25,6 +31,14 @@ class AiConfig(private val aiProperties: AiProperties) {
                     .build(),
             )
             .defaultSystem(loadSystemPrompt())
+            .defaultAdvisors(MessageChatMemoryAdvisor.builder(memory).build())
+            .build()
+
+    @Bean
+    fun chatMemory() =
+        MessageWindowChatMemory.builder()
+            .chatMemoryRepository(xxxxxxxxxxxxxxxxxxxxxxxxxxx)
+            .maxMessages(10)
             .build()
 
     @Bean

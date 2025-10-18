@@ -20,20 +20,23 @@ repositories {
 }
 
 extra["jacksonVersion"] = "2.15.4"
+extra["springAiVersion"] = "1.0.3"
+extra["jjwtVersion"] = "0.12.5"
 
-dependencyManagement {
-    imports {
-        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
-    }
-}
-
-allprojects {
+subprojects {
+    apply(plugin = "org.springframework.boot")
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "io.spring.dependency-management")
 
     repositories {
         mavenCentral()
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
+        }
     }
 
     java {
@@ -54,22 +57,16 @@ allprojects {
     }
 
     dependencies {
-        testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
         testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
         testImplementation("io.kotest.extensions:kotest-extensions-spring:1.3.0")
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+        implementation("org.jetbrains.kotlin:kotlin-reflect")
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${property("jacksonVersion")}")
     }
 
     tasks.withType<Test> {
         useJUnitPlatform()
-    }
-}
-
-subprojects {
-    dependencies {
-        implementation("org.jetbrains.kotlin:kotlin-reflect")
-        implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${property("jacksonVersion")}")
     }
 }
 
