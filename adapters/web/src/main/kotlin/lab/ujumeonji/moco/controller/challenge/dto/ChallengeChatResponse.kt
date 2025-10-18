@@ -29,7 +29,7 @@ data class ChallengeChatResponse(
                     output.messages.map {
                         ChatMessageResponse(
                             content = it.content,
-                            sender = it.sender,
+                            sender = it.sender.value,
                             timestamp = it.timestamp,
                         )
                     },

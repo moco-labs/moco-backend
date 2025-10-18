@@ -1,6 +1,7 @@
 package lab.ujumeonji.moco.repository
 
 import lab.ujumeonji.moco.model.MessageEntity
+import lab.ujumeonji.moco.model.challenge.MessageSender
 import org.springframework.ai.chat.memory.ChatMemoryRepository
 import org.springframework.ai.chat.messages.AssistantMessage
 import org.springframework.ai.chat.messages.Message
@@ -19,15 +20,13 @@ class MongoChatMemoryRepository(
         val session = chatSessionRepository.findByIdOrNull(conversationId) ?: return emptyList()
 
         return session.messages.map {
-            when (it.sender) {
-                "assistant" ->
-                    AssistantMessage(
-                        it.content,
-                        mapOf("timestamp" to it.timestamp),
-                    )
+            when (MessageSender.from(it.sender)) {
+                MessageSender.ASSISTANT, MessageSender.SYSTEM ->
+                    AssistantMessage(it.content, mapOf("timestamp" to it.timestamp))
 
-                else ->
-                    UserMessage.builder().text(it.content)
+                MessageSender.USER ->
+                    UserMessage.builder()
+                        .text(it.content)
                         .metadata(mapOf("timestamp" to it.timestamp))
                         .build()
             }
@@ -38,7 +37,7 @@ class MongoChatMemoryRepository(
         conversationId: String,
         messages: List<Message>,
     ) {
-        val messages =
+        val mappedMessages =
             messages.map {
                 MessageEntity(
                     it.text,
@@ -49,7 +48,7 @@ class MongoChatMemoryRepository(
 
         val session = chatSessionRepository.findByIdOrNull(conversationId) ?: return
 
-        session.messages = messages.toMutableList()
+        session.messages = mappedMessages.toMutableList()
 
         chatSessionRepository.save(session)
     }

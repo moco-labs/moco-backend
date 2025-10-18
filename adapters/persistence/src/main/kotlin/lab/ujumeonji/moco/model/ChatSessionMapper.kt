@@ -2,6 +2,7 @@ package lab.ujumeonji.moco.model
 
 import lab.ujumeonji.moco.model.challenge.ChatSession
 import lab.ujumeonji.moco.model.challenge.Message
+import lab.ujumeonji.moco.model.challenge.MessageSender
 import org.springframework.stereotype.Component
 
 @Component
@@ -37,7 +38,7 @@ class ChatSessionMapper {
     private fun MessageEntity.toDomain(): Message {
         return Message(
             content = this.content,
-            sender = this.sender,
+            sender = MessageSender.from(this.sender),
             timestamp = this.timestamp,
         )
     }
@@ -45,7 +46,7 @@ class ChatSessionMapper {
     private fun Message.toEntity(): MessageEntity {
         return MessageEntity(
             content = this.content,
-            sender = this.sender,
+            sender = this.sender.value,
             timestamp = this.timestamp,
         )
     }

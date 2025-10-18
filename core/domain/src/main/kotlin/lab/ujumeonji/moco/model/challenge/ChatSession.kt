@@ -37,7 +37,7 @@ class ChatSession(
         messages.add(
             Message(
                 content = content,
-                sender = "user",
+                sender = MessageSender.USER,
                 timestamp = now,
             ),
         )
@@ -50,7 +50,7 @@ class ChatSession(
         messages.add(
             Message(
                 content = content,
-                sender = "assistant",
+                sender = MessageSender.ASSISTANT,
                 timestamp = now,
             ),
         )
@@ -68,8 +68,22 @@ class ChatSession(
     }
 }
 
-class Message(
+data class Message(
     val content: String,
-    val sender: String,
+    val sender: MessageSender,
     val timestamp: LocalDateTime = LocalDateTime.now(),
 )
+
+enum class MessageSender(val value: String) {
+    USER("user"),
+    SYSTEM("system"),
+    ASSISTANT("assistant"),
+    ;
+
+    companion object {
+        fun from(value: String): MessageSender {
+            return entries.firstOrNull { it.value.equals(value, ignoreCase = true) }
+                ?: throw IllegalArgumentException("Unknown message sender: $value")
+        }
+    }
+}

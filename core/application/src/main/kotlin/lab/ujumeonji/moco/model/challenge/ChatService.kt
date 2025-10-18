@@ -141,7 +141,7 @@ class ChatService(
     )
     private fun calculateUnderstandingScore(messages: List<Message>): Int {
         try {
-            val conversation = messages.joinToString("\n") { "${it.sender}: ${it.content}" }
+            val conversation = messages.joinToString("\n") { "${it.sender.value}: ${it.content}" }
 
             val prompt =
                 promptTemplateService.createPromptFromTemplate(
