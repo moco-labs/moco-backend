@@ -17,13 +17,13 @@ class MongoChatMemoryRepository(
 ) : ChatMemoryRepository {
     private val logger = LoggerFactory.getLogger(MongoChatMemoryRepository::class.java)
 
-    override fun findConversationIds(): List<String?> = chatSessionRepository.findAll().map { it.id }
+    override fun findConversationIds(): List<String> = chatSessionRepository.findAll().mapNotNull { it.id }
 
-    override fun findByConversationId(conversationId: String): List<Message?> {
+    override fun findByConversationId(conversationId: String): List<Message> {
         val session = chatSessionRepository.findByIdOrNull(conversationId) ?: return emptyList()
 
-        return session.messages.map {
-            when (MessageSender.from(it.sender)) {
+        return session.messages.mapNotNull {
+            when (runCatching { MessageSender.from(it.sender) }.getOrNull()) {
                 MessageSender.ASSISTANT, MessageSender.SYSTEM ->
                     AssistantMessage(it.content, mapOf("timestamp" to it.timestamp))
 
@@ -32,6 +32,11 @@ class MongoChatMemoryRepository(
                         .text(it.content)
                         .metadata(mapOf("timestamp" to it.timestamp))
                         .build()
+
+                null -> {
+                    logger.warn("Skipping message with invalid sender: ${it.sender}")
+                    null
+                }
             }
         }
     }
