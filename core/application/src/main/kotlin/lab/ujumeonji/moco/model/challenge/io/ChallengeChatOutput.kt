@@ -1,5 +1,6 @@
 package lab.ujumeonji.moco.service.challenge.io
 
+import lab.ujumeonji.moco.model.challenge.MessageSender
 import java.time.LocalDateTime
 
 data class ChallengeChatOutput(
@@ -14,7 +15,7 @@ data class ChallengeChatOutput(
 ) {
     data class ChatMessage(
         val content: String,
-        val sender: String,
+        val sender: MessageSender,
         val timestamp: LocalDateTime = LocalDateTime.now(),
     )
 

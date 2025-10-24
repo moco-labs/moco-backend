@@ -10,7 +10,7 @@ data class ChatSessionEntity(
     val id: String? = null,
     val challengeId: String,
     val userId: String,
-    val messages: MutableList<MessageEntity> = mutableListOf(),
+    var messages: MutableList<MessageEntity> = mutableListOf(),
     val understandingScore: Int? = null,
     val interactionCount: Int = 0,
     val maxInteractions: Int = 5,

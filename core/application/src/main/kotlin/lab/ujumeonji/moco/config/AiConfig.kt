@@ -1,6 +1,10 @@
 package lab.ujumeonji.moco.config
 
+import lab.ujumeonji.moco.repository.MongoChatMemoryRepository
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor
+import org.springframework.ai.chat.memory.ChatMemory
+import org.springframework.ai.chat.memory.MessageWindowChatMemory
 import org.springframework.ai.openai.OpenAiChatOptions
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -14,8 +18,11 @@ import java.nio.charset.StandardCharsets
 @EnableRetry
 @EnableConfigurationProperties(AiProperties::class)
 class AiConfig(private val aiProperties: AiProperties) {
-    @Bean
-    fun tutorChatClient(builder: ChatClient.Builder): ChatClient =
+    @Bean("tutorChatClient")
+    fun tutorChatClient(
+        builder: ChatClient.Builder,
+        chatMemory: ChatMemory,
+    ): ChatClient =
         builder
             .defaultOptions(
                 OpenAiChatOptions.builder()
@@ -25,6 +32,14 @@ class AiConfig(private val aiProperties: AiProperties) {
                     .build(),
             )
             .defaultSystem(loadSystemPrompt())
+            .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+            .build()
+
+    @Bean
+    fun chatMemory(mongoChatMemoryRepository: MongoChatMemoryRepository) =
+        MessageWindowChatMemory.builder()
+            .chatMemoryRepository(mongoChatMemoryRepository)
+            .maxMessages(10)
             .build()
 
     @Bean
